@@ -1,0 +1,33 @@
+Ext.define('Insectgame.controller.About',{
+	extend:'Ext.app.Controller',
+	init:function(){
+		//alert('init -about');
+	},
+	config:{
+		refs:{
+			aboutview:{
+				selector:'aboutview',
+				xtype:'aboutview',
+				autoCreate:true
+			},
+			MainButton:'#MainButton'
+		},
+		control:{
+			MainButton:{
+				tap:'showMainView'
+			}
+		},
+		routes:{
+			'about':'showAboutView'
+		}
+	},
+	showMainView:function(){
+		//this.redirectTo('main');
+		this.redirectTo('products/id-101/code-8907');
+	},
+	showAboutView:function(){
+		alert('about');
+		Ext.Msg.alert('method in about view');
+		Ext.Viewport.setActiveItem(this.getAboutview());
+	}
+});

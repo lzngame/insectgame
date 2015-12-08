@@ -1,0 +1,23 @@
+Ext.define('Insectgame.view.About',{
+	extend:'Ext.Panel',
+	xtype:'aboutview',
+	config:{
+		id:'aboutview',
+		fullscreen:true,
+		html:'**********About View',
+		items:[
+			{
+				id:'abouttoolbar',
+				docked:'top',
+				xtype:'toolbar',
+				items:[
+					{
+						xtype:'button',
+						id:'MainButton',
+						text:'Mainview'
+					}
+				]
+			}
+		]
+	}
+});

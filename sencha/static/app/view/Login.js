@@ -1,0 +1,71 @@
+Ext.define('Insectgame.view.Login',{
+	extend:'Ext.Container',
+	xtype:'loginview',
+	config:{
+		id:'loginview',
+		//layout:'fit',
+		//fullscreen:true,
+		items:[
+			{
+				xtype:'fieldset',
+				title:'进入游戏',
+				instructions:'填写玩家信息',
+				defaults:{
+					labelwidth:'20%'
+				},
+				items:[
+					{
+						xtype:'textfield',
+						id:'txt_name',
+						name:'name',
+						label:'用户',
+						placeHolder:'请输入用户名',
+						//required:true,
+						clearIcon:true
+					},
+					{
+						xtype:'textfield',
+						id:'txt_password',
+						name:'password',
+						label:'密码',
+						placeHolder:'请输入密码',
+						//required:true,
+						clearIcon:true
+					},
+					{
+						xtype:'panel',
+						defaults:{
+							xtype:'button',
+							ui:'action',
+							flex:1
+						},
+						layout:{
+							type:'hbox'
+						},
+						items:[
+							{
+								id:'btn_login',
+								ui:'action',
+								text:'进入游戏'
+							},
+							{
+								id:'btn_register',
+								ui:'action',
+								text:'用户注册'
+							}
+						]
+					}
+					
+				],
+        		listeners:{
+        			initialize:function(){
+        				console.log('login view init');
+        				
+        			}
+        			
+        			   
+       			 }
+			}
+		]
+	}
+});
