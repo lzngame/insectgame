@@ -19,7 +19,8 @@ Ext.define('Insectgame.view.Main',{
 						text:'AboutButton'
 					}
 				]
-			}
+			},
+			
 		]
 	}
 });

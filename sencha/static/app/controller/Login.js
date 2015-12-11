@@ -36,7 +36,7 @@ Ext.define('Insectgame.controller.Login',{
 			console.log('跳转到游戏界面');
 			
 			Ext.Viewport.animateActiveItem(this.getMainview(),{type:'slide',direction:'left'});
-			this.redirectTo('main');
+			this.redirectTo('playmain');
 		}else{
 			Ext.Msg.alert("用户名和密码不能为空！");
 		}
