@@ -15,8 +15,38 @@ var jsonData = '{"slice156_@.png": [[606, 200, 117, 157], [0, 0], 0, [0, 0, 117,
 var jsonObj = JSON.parse(jsonData);
 //
 var img_sencha = new Image();
+var img_map = new Image();
 
+var mapdata = [
+	[4,8,'#cc9999',false],
+	[3,8,'#ffcccc',false],
+	[7,3,'#adadad',true],
+];
 
+function getMapdataIndex(x,y){
+	var index = -1;
+	for(var i=0;i<mapdata.length;i++){
+		if(mapdata[i][0] == x && mapdata[i][1]==y){
+			index = i;
+			break;
+		}
+	}
+	return index;
+}
+
+function setMapdataIndex(indexMap){
+	if(indexMap != -1){
+		var re = mapdata[indexMap];
+		re[3] = true;
+		console.log(re);
+	}else{
+		console.log('setMapdataIndex Error,index = -1');
+	}
+}
+
+function setMapdata(x,y){
+	setMapdataIndex(getMapdataIndex(x,y));
+}
 
 var data1 = [
 			{worker_type:'工虫',worker_lv:'B',worker_quantity:'昆虫是节肢动物中种类最多的一类动物。身体左右对称，由多数结'},

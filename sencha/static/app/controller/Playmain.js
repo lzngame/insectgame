@@ -96,16 +96,23 @@ Ext.define('Insectgame.controller.Playmain',{
 			uplv:'#uplv',
 			dataviewuser:'#datatviewuserid',
 			labnum:'#labelnums',
+			homepanel:'#homepanel',
+			mappanel:'#mappanel'
 		},
 		control:{
 			playmainview:{
 				activate:'onactivate'
 			},
 			uplv:{
-                tap:'uplv_onclick'
+                tap:'uplv_onclick',
+                activate:'imbbtn_act',
             },
             dataviewuser:{
             	itemsingletap:'item_ontap'
+            },
+            homepanel:{
+            	activate:'onHomepanelactivate',
+            	deactivate:'onHomepaneldeactivate'
             }
 		},
 		routes:{
@@ -113,6 +120,7 @@ Ext.define('Insectgame.controller.Playmain',{
 		},
 		
 	},
+	
 	onactivate:function(){
 		console.log('playcontrol activate event');
 		setCanvasSize();
@@ -128,6 +136,14 @@ Ext.define('Insectgame.controller.Playmain',{
 		Ext.Viewport.animateActiveItem(this.getLoginview(),{type:'slide',direction:'right'});
 		this.redirectTo('login');
 	},
+	onHomepanelactivate:function(){
+		console.log('home panel onHomepanel activateevent on control');
+	},
+	onHomepaneldeactivate:function(){
+		console.log('home panel onHomepaneldeactivate event on control');
+		
+	},
+	
 	item_ontap:function(thisself,index,item,record,e){
         console.log(item);
         console.log(record);
@@ -183,16 +199,18 @@ Ext.define('Insectgame.controller.Playmain',{
         											
         											{
         												flex:4,
-        												xtype:'textfield',
+        												xtype:'spinnerfield',
         												labelWidth:'30%',
         												styleHtmlCls:'font-size:0.7em',
         												width:'80%',
         												height:'45px',
         												id:'spn_age',
         												name:'age',
-        												label:'购买数量',
-        												minValue:1,
-        												increment:1000,
+        												label:'%',
+        												minValue:0,
+        												maxValue:100,
+        												stepValue:10,
+        												cycle:true,
         												listeners:{
         													change:function(thisself,newValue,oldValue,eOpts){
         														console.log(newValue);

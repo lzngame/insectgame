@@ -43,11 +43,15 @@ Ext.application({
 		
 		Ext.Viewport.setMasked({xtype:'loadmask',message:'资源加载...'});
 		
+		
 		img_sencha.src = "/static/images/tmp_sencha.png";
 		img_sencha.onload = function(){
 				console.log('ok,img loaded');
-				Ext.Viewport.setMasked(false);
-				Ext.Viewport.add(Ext.create('Insectgame.view.Login'));
+				img_map.src = '/static/images/lmap32.png';
+				img_map.onload = function(){
+					Ext.Viewport.setMasked(false);
+					Ext.Viewport.add(Ext.create('Insectgame.view.Login'));
+				}
 			}
 		window.requestNextAnimationFrame(animate);
 	}

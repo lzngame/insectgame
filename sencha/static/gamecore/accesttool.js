@@ -21,3 +21,11 @@ function showFps(){
 		//console.log('tick:%d',tick);
 		return fps;
 	}
+
+function getDis(x1,y1,x2,y2){
+	return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+}
+
+function $(id){
+	return document.getElementById(id);
+}
