@@ -50,7 +50,6 @@ function drawLargemap(){
 	context.fillStyle = 'white';
 	context.font = '18px Palatino';
 	context.fillText('探索',searchBtnX-20,searchBtnY+4);
-	
 }
 
 function drawHexMap(){
@@ -285,21 +284,16 @@ function tapMapTwo(thisself,e,t,eopt){
 
 //切换游戏场景
 function tabToTarget(targetIndex){
-			console.log('tabToTarget:%d',targetIndex);
+		tabToTargetColor(targetIndex);
+		tabToPanel(targetIndex);
+	}
+//切换下方场景标识颜色
+function tabToTargetColor(targetIndex){
 			var carousel = Ext.getCmp('topcarousel');
 			var currentIndex = carousel.getActiveIndex();
 			var dis = targetIndex - currentIndex;
-			
 			var row = Ext.getCmp('signtoolbar');
 			var signs = row.getItems().items;
-			
-			for(var i=0;i<Math.abs(dis);i++){
-				if(dis > 0)
-					carousel.next();
-				else
-					carousel.previous();
-				
-			}
 			for(var i=0;i<signs.length;i++){
 				if(i == targetIndex)
 					signs[targetIndex].setStyle('background-color:'+dataclr[i]);
@@ -307,6 +301,19 @@ function tabToTarget(targetIndex){
 					signs[i].setStyle("background-color:white");
 			}
 	}
+//切换场景
+function tabToPanel(targetIndex){
+	var carousel = Ext.getCmp('topcarousel');
+	var currentIndex = carousel.getActiveIndex();
+	var dis = targetIndex - currentIndex;
+	for(var i=0;i<Math.abs(dis);i++){
+		if(dis > 0)
+			carousel.next();
+		else
+			carousel.previous();
+				
+	}
+}
 
 Ext.define('User',{
 			extend:'Ext.data.Model',
@@ -350,7 +357,7 @@ Ext.define('Insectgame.view.Playmain',{
 				type:'vbox',
 				align:'stretch'
 			},
-			items:[
+		items:[
 				{
 					id:'topcarousel',
 					xtype:'carousel',
@@ -363,6 +370,7 @@ Ext.define('Insectgame.view.Playmain',{
 						activeitemchange:function(thisself,value,oldvalue,eOpts){
 							console.log('activeitemchange');
 							var i = this.getActiveIndex();
+							tabToTargetColor(i);
 						}
 					},
 					items:[
@@ -385,8 +393,15 @@ Ext.define('Insectgame.view.Playmain',{
 									xtype:'label',
 									id:'labelnums',
 									html:'label',
-									top:5,
-									left:36
+									top:45,
+									left:125
+								},
+								{
+									xtype:'label',
+									id:'labelfoodnums',
+									html:'label',
+									top:97,
+									left:180
 								}
 							]
 						},
@@ -400,18 +415,22 @@ Ext.define('Insectgame.view.Playmain',{
 							},
 							items:[
 								{
-									flex:1,
+									flex:1.1,
 									style:'background-color:black',
+									layout:{
+										type:'vbox',
+										align:'stretch',
+									},
+									defaults:{
+										xtype:'button',
+										flex:1
+									},
 									items:[
 										{
-											xtype:'button',
-											text:'甲壳战虫',
-											iconCls:'home',
-											padding:'1em',
+											text:'转化幼虫<br/>10%/次',
+											//iconCls:'home',
 											iconAlign:'top',
 											handler:function(thisself,e,eopts){
-												debugger;
-												console.log('kk');
 												var boj = store.getAt(1);
 												console.log(boj);
 												//boj.set('worker_type','谢谢盟主');
@@ -421,17 +440,30 @@ Ext.define('Insectgame.view.Playmain',{
 											}
 										},
 										{
-											xtype:'button',
-											text:'战力排序<br/>要换行',
-											height:100,
-									
+											text:'进化基因',
+											iconAlign:'top',
+											handler:function(thisself,e,eopts){
+												
+											}
 										},
 										{
-											xtype:'button',
-											text:'负重工虫',
+											text:'级别排序',
 											iconAlign:'top',
-											iconCls:'maps ico roseRed',
-											padding:'1em'
+											handler:function(thisself,e,eopts){
+												
+											}
+										},
+										{
+											text:'数量排序 ',
+											iconAlign:'top',
+											handler:function(thisself,e,eopts){
+											}
+										},
+										{
+											text:'种类排序 ',
+											iconAlign:'top',
+											handler:function(thisself,e,eopts){
+											}
 										}
 									]
 								},
@@ -532,11 +564,4 @@ Ext.define('Insectgame.view.Playmain',{
 	}
 });
 
-function initUpdate(){
-	activeUpdatePool[0] = updateFirst;
-}
 
-function updateFirst(){
-	var lab = Ext.fly('labelnums');
-	lab.setHtml(systemTime);
-}

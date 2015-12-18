@@ -3,13 +3,15 @@ var tabpanelH = 0;
 
 var lab;
 
+var playcontrolfinished = false;
+
 function drawHomeInfoTxt(jsonst,context){
 	var jsonobj = JSON.parse(jsonst)
 	context.font = '16px Palatino';
 	context.fillStyle = "black";
 	context.fillText(jsonobj['home_title'],235,36);
-	context.fillText(jsonobj['larva_quantity'],119,47);
-	context.fillText(jsonobj['insect_food'],170,90);
+	//context.fillText(jsonobj['larva_quantity'],119,47);
+	//context.fillText(jsonobj['insect_food'],170,90);
 	context.fillText(jsonobj['home_lv'],50,140);
 	context.fillText(jsonobj['insect_popularity'],170,160);
 	
@@ -129,8 +131,10 @@ Ext.define('Insectgame.controller.Playmain',{
 	
 	onactivate:function(){
 		console.log('playcontrol activate event');
-		setCanvasSize();
-		createCanvas();
+		//setCanvasSize();
+		//createCanvas();
+		playcontrolfinished = true;
+		initUpdate(0,updateFirst,300);
 	},
 	showPlaymainview:function(){
 		Ext.Viewport.setActiveItem(this.getPlaymainview());
@@ -144,9 +148,15 @@ Ext.define('Insectgame.controller.Playmain',{
 	},
 	onHomepanelactivate:function(){
 		console.log('home panel onHomepanel activateevent on control');
+		if(playcontrolfinished){
+			setCanvasSize();
+			createCanvas();
+			currentActiveGameTabIndex = 0;
+		}
 	},
 	onHomepaneldeactivate:function(){
 		console.log('home panel onHomepaneldeactivate event on control');
+		currentActiveGameTabIndex = 1;
 	},
 	onDataviewActive:function(){
 		console.log('Dataview activate event');
@@ -161,131 +171,23 @@ Ext.define('Insectgame.controller.Playmain',{
 		console.log('buglist deactivate');
 	},
 	
+	
 	item_ontap:function(thisself,index,item,record,e){
         console.log(item);
         console.log(record);
-        var data={str_value:'模板文字'};
-        var panel = Ext.create('Ext.Panel',{
-										id:'tmppanel011',
-										width:'100%',
-										height:'100%',
-										zIndex:999,
-										top:'0px',
-										left:'0px',
-										showAnimation: {
-            								type: 'popIn',
-            								duration: 250,
-            								easing: 'ease-out'
-        								},
-        								hideAnimation:{
-        									type:'popOut',
-        									duration:250,
-        									easing:'ease-out'
-        								},
-        								modal:true,
-        								listeners:{
-        									hide:function(){
-        										console.log('after hide');
-        										Ext.Viewport.remove(panel,true);
-        									}
-        								},
-        								layout:{
-        									type:'vbox',
-        									aligh:'stretch'
-        								},
-        								items:[
-        									{
-        										flex:8,
-        										style:'background-color:#889933',
-        										html:tpl.apply(datatpl)
-        									},
-        									{
-        										flex:1,
-        										html:'孵化幼虫为成虫',
-        										style:'background-color:#889955',
-        									},
-        									{
-        										flex:1,
-        										xtype:'formpanel',
-        										id:'formpanel',
-        										layout:{
-        											type:'hbox',
-        											height:'45px',
-        										},
-        										items:[
-        											
-        											{
-        												flex:4,
-        												xtype:'spinnerfield',
-        												labelWidth:'30%',
-        												styleHtmlCls:'font-size:0.7em',
-        												width:'80%',
-        												height:'45px',
-        												id:'spn_age',
-        												name:'age',
-        												label:'%',
-        												minValue:0,
-        												maxValue:100,
-        												stepValue:10,
-        												cycle:true,
-        												listeners:{
-        													change:function(thisself,newValue,oldValue,eOpts){
-        														console.log(newValue);
-        													}
-        												},
-        											},
-        											{
-        												flex:1,
-        												xtype:'button',
-        												text:'确定',
-        												width:'150%',
-        												height:'45px',
-        												handler:function(){
-        													console.log('sure');
-        												}
-        											}
-        										]
-        									},
-        									{
-        										flex:1,
-        										html:'分配任务',
-        										height:'30px',
-        										style:'background-color:#889955',
-        									},
-        									{
-        										flex:1,
-        										style:'background-color:#339933',
-        										xtype:'segmentedbutton',
-        										height:'45px',
-        										styleHtmlCls:'padding:14px 0 0 0',
-        										items:[
-        											{text:'觅食',width:'33%',pressed: true},{text:'建筑',width:'33%'},{text:'搜索',width:'33%'}
-        										]
-        									},
-        									{
-        										xtype:'button',
-        										text:'返回',
-        										width:'70px',
-        										height:'48px',
-        										top:'232px',
-        										left:'1px',
-        										handler:function(){
-        											panel.hide({type: 'slideOut', direction: 'down',duration:100});
-        											//this.getParent().hide({type: 'slideOut', direction: 'down',duration:100});
-        										}
-        									}
-        								]
-        								
-									});
-									panel.element.on("tap",function(target,e,eOpts){
-										console.log('out');
-										
-			 							//panel.hide({type: 'slideOut', direction: 'down',duration:100});
-			 							//panel.hide(panel.config.hideAnimation);
-			 							
-		 							});
-									Ext.Viewport.add(panel);
-									//panel.show({type: 'slide', direction: 'down'});
-									panel.show(panel.config.showAnimation);
     }
 });
+
+function initUpdate(id,func,t){
+	activeUpdatePool[id] = func;
+	if(t==null)
+		t = 1000;
+	activeUpdatePoolTime[id] = t;
+}
+
+function updateFirst(){
+	var lab = Ext.get('labelnums');
+	var labelfoodnums = Ext.get('labelfoodnums');
+	lab.setHtml(systemTime);
+	labelfoodnums.setHtml(tick);
+}

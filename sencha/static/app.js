@@ -9,6 +9,9 @@ Ext.Loader.setConfig({
 //游戏活动场景 
 var currentActiveGameTabIndex = -1;
 var activeUpdatePool = [];
+var activeUpdatePoolTime = [];
+var tickActiveSum = 0;
+
 var updatePool = [];
 var localupdate = {
 	sumtick:0,
@@ -48,7 +51,12 @@ function animate(time){
 			}
 			
 			if((activeUpdatePool[currentActiveGameTabIndex]) != null){
-				activeUpdatePool[currentActiveGameTabIndex]();
+				tickActiveSum += tick;
+				if(tickActiveSum > activeUpdatePoolTime[currentActiveGameTabIndex]){
+					tickActiveSum = 0;
+					activeUpdatePool[currentActiveGameTabIndex]();
+				}
+				
 			}
 			
 			showFps();
