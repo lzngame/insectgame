@@ -8,6 +8,8 @@ var r3 = r1*Math.cos(Math.PI/3);
 var searchBtnX = 290;
 var searchBtnY = 397;
 
+
+
 //获取坐标对应的像素坐标
 function getHexPos(x,y){
 	var xpos = (r1+r3)*x;
@@ -281,8 +283,9 @@ function tapMapTwo(thisself,e,t,eopt){
 		}
 }
 
+//切换游戏场景
 function tabToTarget(targetIndex){
-			console.log('tabToTarget');
+			console.log('tabToTarget:%d',targetIndex);
 			var carousel = Ext.getCmp('topcarousel');
 			var currentIndex = carousel.getActiveIndex();
 			var dis = targetIndex - currentIndex;
@@ -358,8 +361,8 @@ Ext.define('Insectgame.view.Playmain',{
 					},
 					listeners:{
 						activeitemchange:function(thisself,value,oldvalue,eOpts){
+							console.log('activeitemchange');
 							var i = this.getActiveIndex();
-							tabToTarget(i);
 						}
 					},
 					items:[
@@ -464,6 +467,7 @@ Ext.define('Insectgame.view.Playmain',{
 					},
 					listeners:{
 						initialize:function(thisself,eOpts){
+							console.log('init signtoolbar');
 							tabToTarget(0);
 						}
 					},
@@ -527,3 +531,12 @@ Ext.define('Insectgame.view.Playmain',{
 			]
 	}
 });
+
+function initUpdate(){
+	activeUpdatePool[0] = updateFirst;
+}
+
+function updateFirst(){
+	var lab = Ext.fly('labelnums');
+	lab.setHtml(systemTime);
+}

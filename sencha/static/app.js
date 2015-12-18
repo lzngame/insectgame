@@ -5,6 +5,26 @@ Ext.Loader.setConfig({
     }
 });
 
+
+//游戏活动场景 
+var currentActiveGameTabIndex = -1;
+var activeUpdatePool = [];
+var updatePool = [];
+var localupdate = {
+	sumtick:0,
+	
+	update:function(){
+		this.sumtick += tick;
+		if(this.sumtick > 1000){
+			//console.log(this.sumtick);
+			this.sumtick = 0;
+		}
+	}
+	
+	
+		
+}
+
 function animate(time){
 			/*context.clearRect(0,0,canvas.width,canvas.height);
 			if(loadmanager.isComplete){
@@ -22,6 +42,15 @@ function animate(time){
 			context.fillText('FPS:'+fps+'  Time:'+systemTime+' \t\t\t Tick:'+tick+' Frame: '+frameCount,20,20);
 			console.log('ok');
 			*/
+			localupdate.update();
+			for(var func in updatePool){
+				func();
+			}
+			
+			if((activeUpdatePool[currentActiveGameTabIndex]) != null){
+				activeUpdatePool[currentActiveGameTabIndex]();
+			}
+			
 			showFps();
 			window.requestNextAnimationFrame(animate);
 		}

@@ -97,7 +97,8 @@ Ext.define('Insectgame.controller.Playmain',{
 			dataviewuser:'#datatviewuserid',
 			labnum:'#labelnums',
 			homepanel:'#homepanel',
-			mappanel:'#mappanel'
+			mappanel:'#mappanel',
+			bugdataview:'#buglist'
 		},
 		control:{
 			playmainview:{
@@ -108,12 +109,17 @@ Ext.define('Insectgame.controller.Playmain',{
                 activate:'imbbtn_act',
             },
             dataviewuser:{
-            	itemsingletap:'item_ontap'
+            	itemsingletap:'item_ontap',
             },
             homepanel:{
             	activate:'onHomepanelactivate',
             	deactivate:'onHomepaneldeactivate'
+            },
+            bugdataview:{
+            	activate:'onBuglistActivate',
+            	deactivate:'onBuglistDeactivate'
             }
+            
 		},
 		routes:{
 			'playmain':'showPlaymainview'
@@ -141,7 +147,18 @@ Ext.define('Insectgame.controller.Playmain',{
 	},
 	onHomepaneldeactivate:function(){
 		console.log('home panel onHomepaneldeactivate event on control');
-		
+	},
+	onDataviewActive:function(){
+		console.log('Dataview activate event');
+	},
+	onDataviewDeactive:function(){
+		console.log('Dataview deactive event');
+	},
+	onBuglistActivate:function(){
+		console.log('buglist activate');
+	},
+	onBuglistDeactivate:function(){
+		console.log('buglist deactivate');
 	},
 	
 	item_ontap:function(thisself,index,item,record,e){
