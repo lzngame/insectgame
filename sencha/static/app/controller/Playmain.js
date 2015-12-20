@@ -59,7 +59,6 @@ function createCanvas(){
 			
 			
 			Ext.Ajax.request({
-				//url:'static/bookInfo.json',
 				url:'/gethomedata',
 				success:function(response){
 					var txt = response.responseText;
@@ -170,8 +169,6 @@ Ext.define('Insectgame.controller.Playmain',{
 	onBuglistDeactivate:function(){
 		console.log('buglist deactivate');
 	},
-	
-	
 	item_ontap:function(thisself,index,item,record,e){
         console.log(item);
         console.log(record);

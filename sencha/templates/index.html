@@ -46,27 +46,45 @@
             }
         }
         
-        .title_01{
-				font-size:1.1em;
+		.user-item .inlinediv{
+			display: -webkit-box;
+			-webkit-box-orient: horizontal;
+			width:100%;
+			}
+			
+		.user-item  .title_011, .user-item .title_044{
+				font-size:1.2em;
 				color:#F7941C;
 				padding: 3px;
 			}
-		.title_02{
-				font-size:1em;
-				color:#F0F0F0;
-				padding: 2px;
+		.user-item .title_011{
+				width:80%;
 			}
-		.title_03{
-				font-size:0.6em;
-				color:#989898;
-				padding: 1px;
+		.user-item .title_044{
+				width:20%;
 			}
 		
-		
+		.user-item  .title_022, .user-item .title_055 ,.user-item .title_023{
+				font-size:1.1em;
+				color:#BBB7B7;
+				padding: 3px;
+			}
+		.user-item .title_022{
+				width:50%;
+			}
+		.user-item .title_055{
+				width:50%;
+			}	
+		.user-item  .title_034{
+				font-size:1.0em;
+				color:#E7DDDD;
+				padding: 3px;
+			}
+			
 		.user-item{
-				width:100%;
-				display: -webkit-box;
-				-webkit-box-orient: horizontal;
+				//width:100%;
+				//display: -webkit-box;
+				//-webkit-box-orient: horizontal;
 			}
 		.user-item:nth-child(even){
 			background-color: #191919;
@@ -74,49 +92,36 @@
 		.user-item:nth-child(odd){
 			background-color: #202020;
 		}
-			.user-item .leftdiv{
-				width:80%;
-				padding: 3px 0px 5px 13px;
-			}
-			.user-item .rightdiv{
-				width:20%;
-				color:#F7941C;
-				font-size:0.8em;
-			}
-			.user-item div{
+		
+		.user-item div{
 				width: 100%;
 				text-align:left;
 			}
-			.x-item-selected .leftdiv{
+		.x-item-selected  div{
 				background-color: #F7941C;
 			}
-			.x-item-selected .rightdiv{
-				color:white;
-				background-color: #F7941C;
-			}
-			.x-item-selected .title_01{
-				color:white;
-			}
-			.x-item-selected .title_02{
-				color:black;
-			}
-			.x-item-selected .title_03{
-				color:black;
-			}
+		.x-item-selected .title_011,.x-item-selected .title_044{
+			color:white;
+		}
+		.x-item-selected .title_022,.x-item-selected .title_055,.x-item-selected .title_023,.x-item-selected .title_034{
+			color:black;
+		}
+		
+		
 			
-			.x-button{
+		.x-button{
 				background-color: yellowgreen;
 				background-image: none;
 				border-radius: 0em;
 				border-color: transparent;
 			}
 			
-			.x-button-icon{
+		.x-button-icon{
 				font-size: 1em;
 				border-radius: 0;
 			}
 			
-			.x-button-label{
+		.x-button-label{
 				word-break: break-word;
 				word-wrap: break-word;
 				font-size: 0.7em;

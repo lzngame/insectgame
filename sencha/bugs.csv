@@ -1,0 +1,3 @@
+﻿id,name,lv,count,power,class,classnote,description
+l001,初级工虫,1,100,50,labour,工虫,初步进化的职虫，几乎所有的工作都做
+s001,初级兵虫,1,30,30,solider,兵虫,初级兵虫，负责保卫虫巢

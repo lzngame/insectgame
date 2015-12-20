@@ -29,6 +29,26 @@ class CheckHandler(tornado.web.RequestHandler):
 #self.set_status(500)
 		self.write({'Jhon':'30'})
 
+class GetBugsInfo(tornado.web.RequestHandler):
+	def get(self):
+		f = file('bugs.csv','rb')
+		reader = csv.reader(f)
+		l = []
+		for row in reader:
+			l.append(row)
+		dic = [] 
+		f.close()
+		head = l[0]
+		for item in l[1:]:
+			n = 0
+			dictmp={}
+			for i in head:
+				dictmp[head[n]] = item[n]
+				n = n+1
+			dic.append(dictmp)
+		jsonst = json.dumps(dic)
+		self.write(jsonst)
+
 class GetHomedata(tornado.web.RequestHandler):
 	def get(self):
 		f = file('homedata.csv','rb')
@@ -52,7 +72,8 @@ if __name__ == '__main__':
 			handlers = [
 			(r'/',IndexHandler),
 			(r'/check',CheckHandler),	
-			(r'/gethomedata',GetHomedata)
+			(r'/gethomedata',GetHomedata),
+			(r'/getbugsinfo',GetBugsInfo)
 			],
 			template_path = os.path.join(os.path.dirname(__file__),"templates"),
 			static_path = os.path.join(os.path.dirname(__file__),"static"),

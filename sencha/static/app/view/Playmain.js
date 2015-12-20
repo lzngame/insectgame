@@ -318,28 +318,62 @@ function tabToPanel(targetIndex){
 Ext.define('User',{
 			extend:'Ext.data.Model',
 			config:{
-				fields:['worker_type','worker_lv','worker_quantity']
+				fields:['id','name','lv','power','class','classnote','power','count','description']
 			}
 		});
-		
-var store = Ext.create('Ext.data.Store',{
+var bugTemplate=new Ext.XTemplate( 
+			'<tpl>',
+			  '<div class="totaldiv">',
+				'<div class="inlinediv">',
+				    '<div class="title_011">{name}</div>',
+				    '<div class="title_044">LV:{lv}</div>',
+				'</div>',
+				'<div class="inlinediv">',
+				    '<div class="title_022">类别:{classnote}</div>',
+				    '<div class="title_055">能力:{power}</div>',
+				'</div>',
+				 '<div class="title_023">数量：{count}</div>',
+				 '<div class="title_034">{description}</div>',
+			  '</div>',
+			'</tpl>'
+        ); 
+
+var bugstore = Ext.create('Ext.data.Store',{
 			model:'User',
-			data:data1,
+			autoLoad:true,
+			proxy:{
+				type:'ajax',
+				url:'/getbugsinfo',
+				reader:{
+					type:'json',
+					rootProperty:''
+				}
+			},
+			listeners:{
+				load:function(store,records,successful,operation){
+					//debugger;
+					if(!successful){
+						//Ext.Msg.alert(bugstore.getProxy().getReader().rawData);
+					}else{
+						//Ext.Msg.alert(bugstore.getProxy().getReader().rawData);
+					}
+				}
+			}
 		});
 
 var dataviewuser = Ext.create('Ext.DataView',{
 			id:'datatviewuserid',
 			flex:4,
-			store:store,
+			store:bugstore,
 			baseCls:'user',
 			itemid:'ttttttt',
-			itemTpl:'<div class="leftdiv"><div class="title_01">{worker_type}</div><div class="title_02">{worker_lv}</div><div class="title_03">{worker_quantity}</div></div><div class="rightdiv">LV 10</div>"',
+			itemTpl:bugTemplate,
 			height:'100%',
 		});
 
 var dataviewuser2 = Ext.create('Ext.DataView',{
 			id:'datatviewuserid2',
-			store:store,
+			store:bugstore,
 			baseCls:'user',
 			itemid:'ttttttt2i',
 			itemTpl:'<div class="leftdiv"><div class="title_01">{worker_type}</div><div class="title_02">{worker_lv}</div><div class="title_03">{worker_quantity}</div></div><div class="rightdiv">LV 10</div>"',
