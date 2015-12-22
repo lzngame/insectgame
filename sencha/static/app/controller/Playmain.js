@@ -22,6 +22,7 @@ function drawHomeInfoTxt(jsonst,context){
 	lab = Ext.fly('labelnums');
 	lab.setHtml(jsonobj['home_title']);
 }
+
 function createCanvas(){
 			var canvas = document.getElementById('canvasid');
 			var context = canvas.getContext("2d");
@@ -125,23 +126,26 @@ Ext.define('Insectgame.controller.Playmain',{
 		routes:{
 			'playmain':'showPlaymainview'
 		},
-		
 	},
 	
 	onactivate:function(){
 		console.log('playcontrol activate event');
-		//setCanvasSize();
-		//createCanvas();
 		playcontrolfinished = true;
 		initUpdate(0,updateFirst,300);
+		
+		//初始化探索地图数据
+		Ext.Ajax.request({
+				url:'/getinsectinfo/mapa',
+				success:function(response){
+					var txt = response.responseText;
+					mapdata = JSON.parse(txt);
+				}
+			});
 	},
 	showPlaymainview:function(){
 		Ext.Viewport.setActiveItem(this.getPlaymainview());
 	},
 	uplv_onclick:function(){
-		//Ext.Msg.alert(systemTime.toString());
-		console.log(systemTime);
-		console.log(tick);
 		Ext.Viewport.animateActiveItem(this.getLoginview(),{type:'slide',direction:'right'});
 		this.redirectTo('login');
 	},
@@ -169,9 +173,8 @@ Ext.define('Insectgame.controller.Playmain',{
 	onBuglistDeactivate:function(){
 		console.log('buglist deactivate');
 	},
-	item_ontap:function(thisself,index,item,record,e){
-        console.log(item);
-        console.log(record);
+	item_ontap:function(thisself,index,item,record,e,eOpts){
+        console.log('选择操作对象');
     }
 });
 

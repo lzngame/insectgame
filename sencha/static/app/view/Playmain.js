@@ -1,7 +1,7 @@
 Ext.require(['Ext.Carousel','Ext.Label']);
 var dataclr = ['red','green','blue','yellow'];
 
-var r1 = 35;
+var r1 = 25;
 var r2 = r1*Math.sin(Math.PI/3);
 var r3 = r1*Math.cos(Math.PI/3);
 
@@ -72,17 +72,29 @@ function drawHexMap(){
 		}
 	}
 	
-	
 	for(var i=0;i<mapdata.length;i++){
-		if(mapdata[i][3] != 0){
-			var xpos = getHexPos(mapdata[i][0],mapdata[i][1])[0]; 
-			var ypos = getHexPos(mapdata[i][0],mapdata[i][1])[1];
-			if(mapdata[i][3]){
-				drawHexagon(context,xpos,ypos,r1,mapdata[i][2],clrborder,1);
-				context.fillStyle = 'red';
-				context.fillText(mapdata[i][0].toString()+','+mapdata[i][1].toString(),xpos-1,ypos);
+		var item = mapdata[i];
+		var x = parseInt(item.x);
+		var y = parseInt(item.y);
+		var landform = item.landform;
+		var isopen = (parseInt(item.isopen) != 0);
+		var count = parseInt(item.count);
+		if(isopen){
+			if(landform != 0){
+				var iconurl = typeToIcon[landform];
+				var xpos = getHexPos(x,y)[0];
+				var ypos = getHexPos(x,y)[1];
+				var tmp = jsonObj[iconurl];
+				if(tmp == null){
+					console.log('iconurl:%s  is error!',iconurl);
+				}
+				var arrayitem = tmp[4];
+				//debugger;
+				var w = arrayitem[0];
+				var h = arrayitem[1];
+				drawScaleImg(context,iconurl,xpos-w/2,ypos-h/2,1);
 			}
- 		}
+		}
 	}
 	
 	context.fillText('点击探索地图',tabpanelW/2-40,10);
@@ -92,8 +104,49 @@ function drawHexMap(){
 function getFocusRound(x,y){
 	var xc1 = x;
 	var yc1 = y;
-	
-	var round1 = [
+	var roundSix = null;
+	if(xc1<=1){
+		if(yc1<=5){
+			roundSix = [
+				[xc1+1,  yc1], 
+				[xc1+1,  yc1+1],  
+				[xc1+1,  yc1+2],
+				[xc1+1,  yc1+3],  
+				[xc1+1,  yc1+4], 
+				[xc1+1,  yc1+5]    
+				];
+		}else{
+			roundSix = [
+				[xc1+1,  yc1], 
+				[xc1+1,  yc1-1],  
+				[xc1+1,  yc1-2],
+				[xc1+1,  yc1-3],  
+				[xc1+1,  yc1-4], 
+				[xc1+1,  yc1-5]    
+				];
+		}
+	}else if(xc1 >=8){
+		if(yc1<=5){
+			roundSix = [
+				[xc1-1,  yc1], 
+				[xc1-1,  yc1+1],  
+				[xc1-1,  yc1+2],
+				[xc1-1,  yc1+3],  
+				[xc1-1,  yc1+4], 
+				[xc1-1,  yc1+5]    
+				];
+		}else{
+			roundSix = [
+				[xc1-1,  yc1], 
+				[xc1-1,  yc1-1],  
+				[xc1-1,  yc1-2],
+				[xc1-1,  yc1-3],  
+				[xc1-1,  yc1-4], 
+				[xc1-1,  yc1-5]    
+				];
+		}
+	}else{
+		roundSix = [
 				[xc1,  yc1-1], //top
 				[xc1+1,yc1],  //right top 
 				[xc1+1,yc1+1],//right bottom
@@ -102,13 +155,16 @@ function getFocusRound(x,y){
 				[xc1-1,yc1]    //right bottom
 				];
 				
-	if(xc1 % 2 == 0){
-			round1[1] =[xc1+1,yc1-1],
-			round1[2] =[xc1+1,yc1],
-			round1[4] =[xc1-1,yc1],
-			round1[5] =[xc1-1,yc1-1];
+		if(xc1 % 2 == 0){
+			roundSix[1] =[xc1+1,yc1-1],
+			roundSix[2] =[xc1+1,yc1],
+			roundSix[4] =[xc1-1,yc1],
+			roundSix[5] =[xc1-1,yc1-1];
 		}
-	return round1;
+	}
+	
+	
+	return roundSix;
 }
 
 //获取离点击最近的六边形坐标
@@ -200,6 +256,7 @@ var panelc3 = Ext.create('Ext.Panel',{
 			this.config.currentActive[0]=-1;
 			this.config.currentActive[1]=-1;
 			this.removeAll();
+			console.log('planec3 deactive');
 		}
 	}
 });
@@ -221,7 +278,6 @@ function tapMapOne(thisself,e,t,eopt){
 		drawHexMap();
 		panelc3.config.activePanel = 1;
 	}
-	
 }
 
 function tapMapTwo(thisself,e,t,eopt){
@@ -258,9 +314,6 @@ function tapMapTwo(thisself,e,t,eopt){
 		}
 	}
 	
-	var round1 = getFocusRound(xcoodr,ycoodr);
-	
-	
 	if(panelc3.config.currentActive[0] == xcoodr && panelc3.config.currentActive[1] == ycoodr){
 			console.log('点击原来的点');
 			panelc3.config.status = -1;
@@ -278,7 +331,7 @@ function tapMapTwo(thisself,e,t,eopt){
 			if(xcoodr%2==0)
 				ypos =2*r2*ycoodr-r2;
 			drawHexagon(context,xpos,ypos,r1/2,'blue','yellow',1);
-			drawFoucsRound(round1,context);
+			drawFoucsRound(getFocusRound(xcoodr,ycoodr),context);
 		}
 }
 
@@ -318,7 +371,7 @@ function tabToPanel(targetIndex){
 Ext.define('User',{
 			extend:'Ext.data.Model',
 			config:{
-				fields:['id','name','lv','power','class','classnote','power','count','description']
+				fields:['id','name','lv','power','class','classnote','count','description']
 			}
 		});
 var bugTemplate=new Ext.XTemplate( 
@@ -338,47 +391,92 @@ var bugTemplate=new Ext.XTemplate(
 			'</tpl>'
         ); 
 
-var bugstore = Ext.create('Ext.data.Store',{
+var bugstore = Ext.create( 'Ext.data.Store',{
 			model:'User',
 			autoLoad:true,
+			remoteSort:false,
 			proxy:{
 				type:'ajax',
-				url:'/getbugsinfo',
+				url:'/getinsectinfo/bugs',
 				reader:{
 					type:'json',
 					rootProperty:''
 				}
-			},
-			listeners:{
-				load:function(store,records,successful,operation){
-					//debugger;
-					if(!successful){
-						//Ext.Msg.alert(bugstore.getProxy().getReader().rawData);
-					}else{
-						//Ext.Msg.alert(bugstore.getProxy().getReader().rawData);
-					}
+			}
+		});
+
+var depotstore = Ext.create( 'Ext.data.Store',{
+			model:'User',
+			autoLoad:true,
+			remoteSort:false,
+			proxy:{
+				type:'ajax',
+				url:'/getinsectinfo/depot',
+				reader:{
+					type:'json',
+					rootProperty:''
 				}
 			}
 		});
 
+var depotTemplate=new Ext.XTemplate( 
+			'<tpl>',
+			  '<div class="totaldiv">',
+				'<div class="inlinediv">',
+				    '<div class="title_011">{name}</div>',
+				    '<div class="title_044">LV:{lv}</div>',
+				'</div>',
+				'<div class="inlinediv">',
+				    '<div class="title_022">单位:{classnote}</div>',
+				    '<div class="title_055">数量:{count}</div>',
+				'</div>',
+				 '<div class="title_023">描述：{description}</div>',
+			  '</div>',
+			'</tpl>'
+        ); 
 var dataviewuser = Ext.create('Ext.DataView',{
 			id:'datatviewuserid',
 			flex:4,
 			store:bugstore,
 			baseCls:'user',
 			itemid:'ttttttt',
-			itemTpl:bugTemplate,
+			itemTpl:depotTemplate,
 			height:'100%',
 		});
 
-var dataviewuser2 = Ext.create('Ext.DataView',{
-			id:'datatviewuserid2',
-			store:bugstore,
+var dataviewdepot = Ext.create('Ext.DataView',{
+			id:'datatviewdepotid',
+			store:depotstore,
 			baseCls:'user',
 			itemid:'ttttttt2i',
-			itemTpl:'<div class="leftdiv"><div class="title_01">{worker_type}</div><div class="title_02">{worker_lv}</div><div class="title_03">{worker_quantity}</div></div><div class="rightdiv">LV 10</div>"',
+			itemTpl:depotTemplate,
 			height:'100%',
 		});
+		
+//根据选择条件进行排序
+function sortStore(thisself,sortFact){
+	Ext.getCmp('datatviewuserid').config.index = -1;
+	var st = thisself.getText();
+	var type = '';
+	var prest='';
+	var indexpos = st.indexOf('▲');
+	if(indexpos == -1){
+		indexpos = st.indexOf('▼');
+		prest = st.substring(0,indexpos);
+		thisself.setText((prest+'▲'));
+		type = 'desc';
+	}else{
+		prest = st.substring(0,indexpos);
+		thisself.setText((prest+'▼'));
+		type = 'asc';
+	}
+								
+	bugstore.setRemoteSort(false);
+	bugstore.sort({
+		property:sortFact,
+		direction:type
+	});
+}
 
 Ext.define('Insectgame.view.Playmain',{
 	extend:'Ext.Panel',
@@ -464,39 +562,59 @@ Ext.define('Insectgame.view.Playmain',{
 											text:'转化幼虫<br/>10%/次',
 											//iconCls:'home',
 											iconAlign:'top',
+											style:getBtnCls(),
 											handler:function(thisself,e,eopts){
-												var boj = store.getAt(1);
-												console.log(boj);
-												//boj.set('worker_type','谢谢盟主');
-												var records = store.getRange();
-												var jsonSt = Ext.encode(Ext.pluck(records,'data'));
+												//var index = Ext.getCmp('datatviewuserid').config.index;
+												//debugger;
+												//var item = Ext.getCmp('datatviewuserid').config.selectItem;
+												//var id = item.getId();
 												
+												var sobj = Ext.getCmp('datatviewuserid').getSelection()[0];
+												if(sobj == null){
+													Ext.Msg.alert('请先选择虫族');
+													return;
+												}
+												var idd = sobj.id;
+												bugstore.setRemoteSort(true);
+												//var boj = bugstore.getAt(index);
+												var boj = bugstore.getById(idd);
+												console.log(boj);
+												var num = Math.floor(Math.random()*100);
+												boj.set('count',num);
+												var records = bugstore.getRange();
+												var jsonSt = Ext.encode(Ext.pluck(records,'data'));
 											}
 										},
 										{
 											text:'进化基因',
 											iconAlign:'top',
+											style:getBtnCls(),
 											handler:function(thisself,e,eopts){
-												
+												console.log('进化基因');
 											}
 										},
 										{
-											text:'级别排序',
+											text:'级别排序▲',
 											iconAlign:'top',
+											style:getBtnCls(),
 											handler:function(thisself,e,eopts){
-												
+												sortStore(thisself,'lv')
 											}
 										},
 										{
-											text:'数量排序 ',
+											text:'数量排序▲ ',
 											iconAlign:'top',
+											style:getBtnCls(),
 											handler:function(thisself,e,eopts){
+												sortStore(thisself,'count')
 											}
 										},
 										{
-											text:'种类排序 ',
+											text:'种类排序▲ ',
 											iconAlign:'top',
+											style:getBtnCls(),
 											handler:function(thisself,e,eopts){
+												sortStore(thisself,'class');
 											}
 										}
 									]
@@ -513,7 +631,7 @@ Ext.define('Insectgame.view.Playmain',{
 							html:'Four',
 							style:'background-color:#ccdd99',
 							items:[
-								dataviewuser2,
+								dataviewdepot,
 							]
 						}
 					]
