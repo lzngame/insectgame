@@ -12,7 +12,7 @@ define('port',default=8000,help='run...',type=int)
 
 class IndexHandler(tornado.web.RequestHandler):
 	def get(self):
-		self.render('index.html',title='游戏v0.0.0')
+		self.render('index.html',title='游戏v0.0.1')
 
 class JsModule(tornado.web.UIModule):
     	def render(self):
@@ -57,8 +57,9 @@ class GetInsectInfo(tornado.web.RequestHandler):
                         jsonst = getCsvJsonst('bugs.csv')
                         self.write(jsonst)
                 elif story_id == 'mapa':
-                        print getCsvJsonst('mapa.csv')
                         self.write(getCsvJsonst('mapa.csv'))
+                elif story_id == 'titleconfig':
+                        self.write(getCsvJsonst('titleconfig.csv'))
 
 class GetBugsInfo(tornado.web.RequestHandler):
 	def get(self):

@@ -5,68 +5,75 @@ var lab;
 
 var playcontrolfinished = false;
 
-function drawHomeInfoTxt(jsonst,context){
-	var jsonobj = JSON.parse(jsonst)
+function drawHomeInfoTxt(context){
 	context.font = '16px Palatino';
 	context.fillStyle = "black";
-	context.fillText(jsonobj['home_title'],235,36);
-	//context.fillText(jsonobj['larva_quantity'],119,47);
-	//context.fillText(jsonobj['insect_food'],170,90);
-	context.fillText(jsonobj['home_lv'],50,140);
-	context.fillText(jsonobj['insect_popularity'],170,160);
-	
-	context.fillText(jsonobj['insect_coid'],235,226);
-	context.fillText(jsonobj['insect_power'],235,286);
-	context.fillText(jsonobj['hatch_speed'],235,336);
+	var homeInfoObj = titleArray['/gethomedata'].infoobj;
+	context.fillText(homeInfoObj['home_title'],235,36);
+	context.fillText(homeInfoObj['home_lv'],50,140);
+	context.fillText(homeInfoObj['insect_popularity'],170,160);
+	context.fillText(homeInfoObj['insect_coid'],235,226);
+	context.fillText(homeInfoObj['insect_power'],235,286);
+	context.fillText(homeInfoObj['hatch_speed'],235,336);
 	
 	lab = Ext.fly('labelnums');
-	lab.setHtml(jsonobj['home_title']);
+	lab.setHtml(homeInfoObj['home_title']);
 }
 
 function createCanvas(){
 			var canvas = document.getElementById('canvasid');
 			var context = canvas.getContext("2d");
 			
+			//context.fillStyle = 'red';
+			//context.fillRect(0,0,200,300);
+			
 			context.font = '14px Palatino';
 			context.fillStyle = "#5C5959";//mainview_Uiconfig.fontclr;
-			drawText(context,20,220,22,tmpdata.introduction);
+			//drawText(context,20,220,22,tmpdata.introduction);
+			
 			
 			var clr = '#B5D981';//mainview_Uiconfig.hexagonfillclr;//'
 			var clrborder = "#E7FC34";
-			drawHexagon(context,60,60,40,clr,clrborder,1);
+			var initxPos = 10;
+			var inityPos =  (tabpanelH - 429)/10.0;
+			var rHex = tabpanelH/10;
+			console.log('六边形半径：',rHex);
 			
-			drawHexagon(context,120,100,35,clr,clrborder,1);
-			drawHexagon(context,60,130,35,clr,clrborder,1);
-			drawHexagon(context,120,165,35,clr,clrborder,1);
-			context.fillRect(100,60,100,1);
-			context.fillRect(155,100,100,1);
-			context.fillRect(155,165,100,1);
+			var x =  initxPos+rHex;
+			var y =  inityPos+rHex;
+			if(tabpanelH <= 429)
+				y = rHex*Math.sin(Math.PI/3)+3;
+			var rsin = rHex*Math.sin(Math.PI/3) + 3;
+			for(var i=0;i<4;i++){
+				drawHexagon(context,x,y+2*i*rsin,rHex,clr,clrborder,1);
+				context.fillRect(x+rHex,y+2*i*rsin,100,1);
+			}
+			context.font = '14px Palatino';
+			context.fillStyle = "#5C5959";
+			//context.fillText('x',300,y+7*rsin+10);
+			drawText(context,x - rHex,y+7*rsin+20,25,tmpdata.introduction);
+			var imguplv = Ext.getCmp('uplv');
+			imguplv.setTop(y+7*rsin+10);
+			imguplv.setLeft(tabpanelW-imguplv.getWidth()-5);
 			
-			context.fillStyle = '#060606';
-			context.fillText('幼虫',45,50);
-			context.fillText('虫食',104,97);
-			context.fillText('等级',45,122);
-			context.fillText('效率 ',104,157);
+			var imghelp = Ext.getCmp('help4');
+			imghelp.setTop(y);
+			imghelp.setLeft(tabpanelW-imghelp.getWidth()-25);
 			
+			var imgwarning = Ext.getCmp('warning');
+			imgwarning.setTop(y+60);
+			imgwarning.setLeft(tabpanelW-imghelp.getWidth()-25);
 			
-			context.fillText('虫币',192,205);
-			context.fillText('声望',192,260);
-			context.fillText('战力',192,315);
+			var imgsave = Ext.getCmp('save');
+			imgsave.setTop(y+160);
+			imgsave.setLeft(tabpanelW-imgsave.getWidth()-25);
 			
-			drawScaleImg(context,'slice61_61.png',190,20,0.5);
-			drawScaleImg(context,'slice80_80.png',190,210,1);
-			drawScaleImg(context,'slice66_66.png',190,265,1);
-			drawScaleImg(context,'slice63_63.png',190,320,1);
+			drawHomeInfoTxt(context);
 			
+			r1 = tabpanelW/16;
+			r2 = r1*Math.sin(Math.PI/3);
+			r3 = r1*Math.cos(Math.PI/3);
 			
-			Ext.Ajax.request({
-				url:'/gethomedata',
-				success:function(response){
-					var txt = response.responseText;
-					console.log(txt);
-					drawHomeInfoTxt(txt,context);
-				}
-			});
 		}
 
 function setCanvasSize(){
@@ -78,14 +85,13 @@ function setCanvasSize(){
 			canvas.height = h;
 			tabpanelW = w;
 			tabpanelH = h;
+			console.log('舞台宽高：',tabpanelW,tabpanelH);
 		}
-var tpl = new Ext.XTemplate('<h1 style="color:black">{str_value}</h1>');
-var datatpl = {str_value:'模板文字'};
 
 Ext.define('Insectgame.controller.Playmain',{
 	extend:'Ext.app.Controller',
 	init:function(){
-		console.log('playmain init');
+		console.log('playmain view init');
 	},
 	config:{
 		refs:{
@@ -100,12 +106,14 @@ Ext.define('Insectgame.controller.Playmain',{
 			labnum:'#labelnums',
 			homepanel:'#homepanel',
 			mappanel:'#mappanel',
-			bugdataview:'#buglist'
+			bugdataview:'#buglist',
+			depotdataview:'#depotdataviewid'
 		},
 		control:{
 			playmainview:{
 				activate:'onactivate'
 			},
+			
 			uplv:{
                 tap:'uplv_onclick',
                 activate:'imbbtn_act',
@@ -120,7 +128,11 @@ Ext.define('Insectgame.controller.Playmain',{
             bugdataview:{
             	activate:'onBuglistActivate',
             	deactivate:'onBuglistDeactivate'
-            }
+            },
+            depotdataview:{
+            	activate:'onDepotlistActivate',
+            	deactivate:'onDepotlistDeactivate'
+            },
             
 		},
 		routes:{
@@ -133,15 +145,8 @@ Ext.define('Insectgame.controller.Playmain',{
 		playcontrolfinished = true;
 		initUpdate(0,updateFirst,300);
 		
-		//初始化探索地图数据
-		Ext.Ajax.request({
-				url:'/getinsectinfo/mapa',
-				success:function(response){
-					var txt = response.responseText;
-					mapdata = JSON.parse(txt);
-				}
-			});
 	},
+	
 	showPlaymainview:function(){
 		Ext.Viewport.setActiveItem(this.getPlaymainview());
 	},
@@ -161,17 +166,21 @@ Ext.define('Insectgame.controller.Playmain',{
 		console.log('home panel onHomepaneldeactivate event on control');
 		currentActiveGameTabIndex = 1;
 	},
-	onDataviewActive:function(){
-		console.log('Dataview activate event');
-	},
-	onDataviewDeactive:function(){
-		console.log('Dataview deactive event');
-	},
 	onBuglistActivate:function(){
 		console.log('buglist activate');
+		if(bugstore.getData().length == 0)
+			bugstore.setData(titleArray['/getinsectinfo/bugs'].infoobj);																								
 	},
 	onBuglistDeactivate:function(){
 		console.log('buglist deactivate');
+	},
+	onDepotlistActivate:function(){
+		console.log('depotlist activate');
+		if(depotstore.getData().length == 0)
+			depotstore.setData(titleArray['/getinsectinfo/depot'].infoobj);																								
+	},
+	onDepotlistDeactivate:function(){
+		console.log('depotlist deactivate');
 	},
 	item_ontap:function(thisself,index,item,record,e,eOpts){
         console.log('选择操作对象');

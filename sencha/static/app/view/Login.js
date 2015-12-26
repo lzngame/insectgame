@@ -1,71 +1,36 @@
 Ext.define('Insectgame.view.Login',{
-	extend:'Ext.Container',
+	extend:'Ext.Panel',
 	xtype:'loginview',
+	
 	config:{
 		id:'loginview',
-		//layout:'fit',
-		//fullscreen:true,
 		items:[
-			{
-				xtype:'fieldset',
-				title:'进入游戏',
-				instructions:'填写玩家信息',
-				defaults:{
-					labelwidth:'20%'
-				},
-				items:[
 					{
-						xtype:'textfield',
-						id:'txt_name',
-						name:'name',
-						label:'用户',
-						placeHolder:'请输入用户名',
-						//required:true,
-						clearIcon:true
-					},
-					{
-						xtype:'textfield',
-						id:'txt_password',
-						name:'password',
-						label:'密码',
-						placeHolder:'请输入密码',
-						//required:true,
-						clearIcon:true
-					},
-					{
+						id:'loginpanel',
 						xtype:'panel',
-						defaults:{
-							xtype:'button',
-							ui:'action',
-							flex:1
-						},
-						layout:{
-							type:'hbox'
-						},
-						items:[
-							{
-								id:'btn_login',
-								ui:'action',
-								text:'进入游戏'
-							},
-							{
-								id:'btn_register',
-								ui:'action',
-								text:'用户注册'
-							}
-						]
+						style:'background:#000000 url("static/images/title.png") no-repeat center center fixed',
+						height:'100%',
+						width:'100%'
+						
+					},
+					{
+						id:'btn_play',
+						xtype:'button',
+						text:'进入游戏',
+						width:'30%',
+						height:50,
+						top:'60%',
+						left:'35%'
+					},
+					{
+						id:'btn_clear',
+						xtype:'button',
+						text:'Clear',
+						width:'30%',
+						height:50,
+						top:'80%',
+						left:'35%'
 					}
-					
-				],
-        		listeners:{
-        			initialize:function(){
-        				console.log('login view init');
-        				
-        			}
-        			
-        			   
-       			 }
+				]
 			}
-		]
-	}
 });

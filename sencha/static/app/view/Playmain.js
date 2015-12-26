@@ -1,14 +1,11 @@
 Ext.require(['Ext.Carousel','Ext.Label']);
 var dataclr = ['red','green','blue','yellow'];
 
-var r1 = 25;
-var r2 = r1*Math.sin(Math.PI/3);
-var r3 = r1*Math.cos(Math.PI/3);
+var r1,r2,r3;
 
-var searchBtnX = 290;
-var searchBtnY = 397;
-
-
+var searchBtnR = 30;
+var searchBtnX = 0;
+var searchBtnY = 0;
 
 //获取坐标对应的像素坐标
 function getHexPos(x,y){
@@ -26,26 +23,21 @@ function drawLargemap(){
 	var context = canvas.getContext("2d");
 	context.clearRect(0,0,tabpanelW,tabpanelH);
 	context.strokeStyle = 'black';
-	context.strokeRect(5,5,270,370);
+	context.strokeRect(5,5,tabpanelW-8,tabpanelH-8);
 	context.fillStyle ="#454545";
-	context.fillRect(7,7,264,364);
-	context.drawImage(img_map,0,0,img_map.width,img_map.height,15,15,250,350);
+	context.fillRect(7,7,tabpanelW-15,tabpanelH-15);
+	context.drawImage(img_map,0,0,img_map.width,img_map.height,15,15,tabpanelW-15,tabpanelH-15);
 	
-	context.strokeStyle = 'red';'darkolivegreen';
-	context.strokeRect(5,376,tabpanelW-10,tabpanelH -378);
+	
+	context.fillStyle='white';
 	context.fillText('曼普多提大陆     当前地图：危险丛林',10,375+15);
 	context.fillText('当前探索进度：★★★★☆☆',10,375+30);
-	
-	drawScaleImg(context,'slice18_18.png',276,5,1);
-	drawScaleImg(context,'slice21_21.png',276,5+1*57,1);
-	drawScaleImg(context,'slice25_25.png',276,5+2*57,1);
-	drawScaleImg(context,'slice23_23.png',276,5+3*57,1);
-	drawScaleImg(context,'slice07_07.png',276,5+4*57,1);
-	drawScaleImg(context,'slice24_24.png',276,5+5*57,1);
 	
 	drawScaleImg(context,'slice10_10.png',86,86,1);
 	drawScaleImg(context,'slice94_94.png',171,216,1);
 	
+	searchBtnX = tabpanelW - 1.5*searchBtnR;
+	searchBtnY = 1.5*searchBtnR;
 	drawHexagon(context,searchBtnX,searchBtnY,30,'black','white',0);
 	context.fillStyle = 'white';
 	context.font = '18px Palatino';
@@ -61,9 +53,10 @@ function drawHexMap(){
 	var clrborder = "#333300";
 	var clr='#99cc00';
 			
-			
-	for(var i=0;i<19;i++){
-		for(var j=0;j<19;j++){
+	var wL = Math.ceil(tabpanelW/r2);
+	var hL = Math.ceil(tabpanelH/r2);
+	for(var i=0;i<wL;i++){
+		for(var j=0;j<hL;j++){
 			var xpos =  getHexPos(j,i)[0];
 			var ypos =  getHexPos(j,i)[1];
 			drawHexagon(context,xpos,ypos,r1,clr,clrborder,1);
@@ -72,16 +65,17 @@ function drawHexMap(){
 		}
 	}
 	
-	for(var i=0;i<mapdata.length;i++){
-		var item = mapdata[i];
+	var mapdataInfoObj = titleArray['/getinsectinfo/mapa'].infoobj;
+	for(var i=0;i<mapdataInfoObj.length;i++){
+		var item = mapdataInfoObj[i];
 		var x = parseInt(item.x);
 		var y = parseInt(item.y);
 		var landform = item.landform;
 		var isopen = (parseInt(item.isopen) != 0);
 		var count = parseInt(item.count);
 		if(isopen){
-			if(landform != 0){
-				var iconurl = typeToIcon[landform];
+			if(landform != null){
+				var iconurl = getTileConfig(landform).iconurl+'.png';
 				var xpos = getHexPos(x,y)[0];
 				var ypos = getHexPos(x,y)[1];
 				var tmp = jsonObj[iconurl];
@@ -89,7 +83,6 @@ function drawHexMap(){
 					console.log('iconurl:%s  is error!',iconurl);
 				}
 				var arrayitem = tmp[4];
-				//debugger;
 				var w = arrayitem[0];
 				var h = arrayitem[1];
 				drawScaleImg(context,iconurl,xpos-w/2,ypos-h/2,1);
@@ -162,8 +155,6 @@ function getFocusRound(x,y){
 			roundSix[5] =[xc1-1,yc1-1];
 		}
 	}
-	
-	
 	return roundSix;
 }
 
@@ -269,9 +260,10 @@ function tapMapOne(thisself,e,t,eopt){
 	var context = canvas.getContext("2d");
 	var tapx = thisself.pageX;
 	var tapy = thisself.pageY;
-	console.log(getDis(tapx,tapy,283,397));
+	var dis = getDis(tapx,tapy,searchBtnX,searchBtnY);
+	console.log('Dis:%f',dis);
 	
-	if(getDis(tapx,tapy,283,397) < 30){
+	if(dis < 30){
 		panelc3.element.removeListener('tap',tapMapOne);
 		panelc3.element.on('tap',tapMapTwo);
 		context.clearRect(0,0,tabpanelW,tabpanelH);
@@ -305,6 +297,7 @@ function tapMapTwo(thisself,e,t,eopt){
 			}else{
 				setMapdata(panelc3.config.currentActive[0],panelc3.config.currentActive[1]);
 				context.clearRect(0,0,tabpanelW,tabpanelH);
+				saveData('mapdata');
 				drawHexMap();
 			}
 			panelc3.config.status = -1;
@@ -319,7 +312,6 @@ function tapMapTwo(thisself,e,t,eopt){
 			panelc3.config.status = -1;
 			panelc3.config.currentActive[0]=-1;
 			panelc3.config.currentActive[1]=-1;
-			//debugger;
 			context.clearRect(0,0,tabpanelW,tabpanelH);
 			drawHexMap();
 	}else{
@@ -340,6 +332,7 @@ function tabToTarget(targetIndex){
 		tabToTargetColor(targetIndex);
 		tabToPanel(targetIndex);
 	}
+
 //切换下方场景标识颜色
 function tabToTargetColor(targetIndex){
 			var carousel = Ext.getCmp('topcarousel');
@@ -354,6 +347,7 @@ function tabToTargetColor(targetIndex){
 					signs[i].setStyle("background-color:white");
 			}
 	}
+
 //切换场景
 function tabToPanel(targetIndex){
 	var carousel = Ext.getCmp('topcarousel');
@@ -364,7 +358,6 @@ function tabToPanel(targetIndex){
 			carousel.next();
 		else
 			carousel.previous();
-				
 	}
 }
 
@@ -374,6 +367,7 @@ Ext.define('User',{
 				fields:['id','name','lv','power','class','classnote','count','description']
 			}
 		});
+		
 var bugTemplate=new Ext.XTemplate( 
 			'<tpl>',
 			  '<div class="totaldiv">',
@@ -390,33 +384,19 @@ var bugTemplate=new Ext.XTemplate(
 			  '</div>',
 			'</tpl>'
         ); 
-
+		
 var bugstore = Ext.create( 'Ext.data.Store',{
 			model:'User',
 			autoLoad:true,
 			remoteSort:false,
-			proxy:{
-				type:'ajax',
-				url:'/getinsectinfo/bugs',
-				reader:{
-					type:'json',
-					rootProperty:''
-				}
-			}
+			data:titleArray['/getinsectinfo/bugs'].infoobj,
 		});
 
 var depotstore = Ext.create( 'Ext.data.Store',{
 			model:'User',
 			autoLoad:true,
 			remoteSort:false,
-			proxy:{
-				type:'ajax',
-				url:'/getinsectinfo/depot',
-				reader:{
-					type:'json',
-					rootProperty:''
-				}
-			}
+			data:titleArray['/getinsectinfo/depot'].infoobj,
 		});
 
 var depotTemplate=new Ext.XTemplate( 
@@ -434,6 +414,7 @@ var depotTemplate=new Ext.XTemplate(
 			  '</div>',
 			'</tpl>'
         ); 
+        
 var dataviewuser = Ext.create('Ext.DataView',{
 			id:'datatviewuserid',
 			flex:4,
@@ -511,6 +492,7 @@ Ext.define('Insectgame.view.Playmain',{
 							id:'homepanel',
 							html:'<canvas id="canvasid" style="margin:0px;padding:0px;"></canvas>',
 							style:'background-color:#D6F6DB',
+							styleHtmlCls:'padding:0',
 							items:[
 								{
 									xtype:'img',
@@ -518,8 +500,35 @@ Ext.define('Insectgame.view.Playmain',{
 									id:'uplv',
 									height:41,
 									width:150,
-									top:345,
-									left:36,
+									top:325,
+									left:146,
+								},
+								{
+									xtype:'img',
+									src:'static/images/help4.png',
+									id:'help4',
+									height:40,
+									width:40,
+									top:325,
+									left:146,
+								},
+								{
+									xtype:'img',
+									src:'static/images/warning43.png',
+									id:'warning',
+									height:40,
+									width:40,
+									top:325,
+									left:146,
+								},
+								{
+									xtype:'img',
+									src:'static/images/save.png',
+									id:'save',
+									height:30,
+									width:30,
+									top:325,
+									left:146,
 								},
 								{
 									xtype:'label',
@@ -583,6 +592,7 @@ Ext.define('Insectgame.view.Playmain',{
 												boj.set('count',num);
 												var records = bugstore.getRange();
 												var jsonSt = Ext.encode(Ext.pluck(records,'data'));
+												localStorage[titleArray['/getinsectinfo/bugs'].localkey] = jsonSt;
 											}
 										},
 										{
@@ -627,7 +637,7 @@ Ext.define('Insectgame.view.Playmain',{
 							panelc3
 						,
 						{
-							id:'c4',
+							id:'depotdataviewid',
 							html:'Four',
 							style:'background-color:#ccdd99',
 							items:[
@@ -651,7 +661,6 @@ Ext.define('Insectgame.view.Playmain',{
 					},
 					listeners:{
 						initialize:function(thisself,eOpts){
-							console.log('init signtoolbar');
 							tabToTarget(0);
 						}
 					},
