@@ -46,7 +46,7 @@
             }
         }
         
-		.user-item .inlinediv{
+		.user-item .inlinediv,.depot-item .inlinediv{
 			display: -webkit-box;
 			-webkit-box-orient: horizontal;
 			width:100%;
@@ -58,10 +58,12 @@
 				padding: 3px;
 			}
 		.user-item .title_011{
-				width:80%;
+				width:70%;
+				//background-color: #0064A9;
 			}
 		.user-item .title_044{
-				width:20%;
+				width:30%;
+				//background-color: aquamarine;
 			}
 		
 		.user-item  .title_022, .user-item .title_055 ,.user-item .title_023{
@@ -108,6 +110,64 @@
 		}
 		
 		
+		//----------------------------------------------------------
+		.depot-item .inlinediv{
+			display: -webkit-box;
+			-webkit-box-orient: horizontal;
+			width:100%;
+			}
+			
+		.depot-item  .title_011, .depot-item .title_044{
+				font-size:1em;
+				color:#F7941C;
+				padding: 3px;
+			}
+		.depot-item .title_011{
+				width:80%;
+			}
+		.depot-item .title_044{
+				width:20%;
+			}
+		
+		.depot-item  .title_022, .depot-item .title_055 ,.depot-item .title_023{
+				font-size:0.8em;
+				color:#BBB7B7;
+				padding: 3px;
+			}
+		.depot-item .title_022{
+				width:50%;
+			}
+		.depot-item .title_055{
+				width:50%;
+			}	
+		.depot-item  .title_034{
+				font-size:1.0em;
+				color:#E7DDDD;
+				padding: 3px;
+			}
+			
+		
+		.depot-item:nth-child(even){
+			background-color: #191919;
+		}
+		.depot-item:nth-child(odd){
+			background-color: #202020;
+		}
+		
+		.depot-item div{
+				width: 100%;
+				text-align:left;
+			}
+		.x-item-selected  div{
+				background-color: #F7941C;
+			}
+		.x-item-selected .title_011,.x-item-selected .title_044{
+			color:white;
+		}
+		.x-item-selected .title_022,.x-item-selected .title_055,.x-item-selected .title_023,.x-item-selected .title_034{
+			color:black;
+		}
+		
 		.x-button {
 				background-image: none;
 				border-radius: 0em;
@@ -124,7 +184,19 @@
 				word-wrap: break-word;
 				font-size: 0.7em;
 			}
-			
+		.x-toast {
+    		min-width: 15em;
+    		max-width: 30em;
+    		max-height: 90%;
+    		min-height: 10%;
+			font-size: 0.6em;
+    		margin: 6px;
+			background-color:Black;
+			color:White;
+    		.x-toast-text {
+        		text-align: center;
+   			 }
+		}	
 		
 		</style>
 		

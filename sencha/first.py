@@ -29,6 +29,17 @@ class CheckHandler(tornado.web.RequestHandler):
 #self.set_status(500)
 		self.write({'Jhon':'30'})
 
+infodic ={
+        'homedata':'homedata.csv',
+        'depotdata':'depotdata.csv',
+        'bugsdata':'bugs.csv',
+        'mapdata':'mapa.csv',
+        'landforminfo':'landformconfig.csv',
+        'bugsinfo':'bugsconfig.csv',
+        'enemyinfo':'enemyconfig.csv',
+        'goodsinfo':'goodsconfig.csv'
+        }
+
 def getCsvJsonst(filename):
       	f = file(filename,'rb')
 	reader = csv.reader(f)
@@ -50,16 +61,8 @@ def getCsvJsonst(filename):
 
 class GetInsectInfo(tornado.web.RequestHandler):
 	def get(self,story_id):
-                if story_id == 'depot':
-                        jsonst = getCsvJsonst('depot.csv')
-                        self.write(jsonst)
-                elif story_id == 'bugs':
-                        jsonst = getCsvJsonst('bugs.csv')
-                        self.write(jsonst)
-                elif story_id == 'mapa':
-                        self.write(getCsvJsonst('mapa.csv'))
-                elif story_id == 'titleconfig':
-                        self.write(getCsvJsonst('titleconfig.csv'))
+                self.write(getCsvJsonst('csv/'+infodic[story_id]))
+                 
 
 class GetBugsInfo(tornado.web.RequestHandler):
 	def get(self):
@@ -68,7 +71,7 @@ class GetBugsInfo(tornado.web.RequestHandler):
 
 class GetHomedata(tornado.web.RequestHandler):
 	def get(self):
-		f = file('homedata.csv','rb')
+		f = file('csv/homedata.csv','rb')
 		reader = csv.reader(f)
 		l = []
 		for row in reader:

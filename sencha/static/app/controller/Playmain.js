@@ -23,22 +23,14 @@ function drawHomeInfoTxt(context){
 function createCanvas(){
 			var canvas = document.getElementById('canvasid');
 			var context = canvas.getContext("2d");
-			
-			//context.fillStyle = 'red';
-			//context.fillRect(0,0,200,300);
-			
 			context.font = '14px Palatino';
 			context.fillStyle = "#5C5959";//mainview_Uiconfig.fontclr;
-			//drawText(context,20,220,22,tmpdata.introduction);
-			
-			
 			var clr = '#B5D981';//mainview_Uiconfig.hexagonfillclr;//'
 			var clrborder = "#E7FC34";
 			var initxPos = 10;
 			var inityPos =  (tabpanelH - 429)/10.0;
 			var rHex = tabpanelH/10;
 			console.log('六边形半径：',rHex);
-			
 			var x =  initxPos+rHex;
 			var y =  inityPos+rHex;
 			if(tabpanelH <= 429)
@@ -50,7 +42,6 @@ function createCanvas(){
 			}
 			context.font = '14px Palatino';
 			context.fillStyle = "#5C5959";
-			//context.fillText('x',300,y+7*rsin+10);
 			drawText(context,x - rHex,y+7*rsin+20,25,tmpdata.introduction);
 			var imguplv = Ext.getCmp('uplv');
 			imguplv.setTop(y+7*rsin+10);
@@ -69,11 +60,6 @@ function createCanvas(){
 			imgsave.setLeft(tabpanelW-imgsave.getWidth()-25);
 			
 			drawHomeInfoTxt(context);
-			
-			r1 = tabpanelW/16;
-			r2 = r1*Math.sin(Math.PI/3);
-			r3 = r1*Math.cos(Math.PI/3);
-			
 		}
 
 function setCanvasSize(){
@@ -85,6 +71,9 @@ function setCanvasSize(){
 			canvas.height = h;
 			tabpanelW = w;
 			tabpanelH = h;
+			r1 = tabpanelW/12;
+			r2 = r1*Math.sin(Math.PI/3);
+			r3 = r1*Math.cos(Math.PI/3);
 			console.log('舞台宽高：',tabpanelW,tabpanelH);
 		}
 
@@ -107,7 +96,8 @@ Ext.define('Insectgame.controller.Playmain',{
 			homepanel:'#homepanel',
 			mappanel:'#mappanel',
 			bugdataview:'#buglist',
-			depotdataview:'#depotdataviewid'
+			depotdataview:'#depotdataviewid',
+			depotlist:'#depotlistid'
 		},
 		control:{
 			playmainview:{
@@ -133,6 +123,9 @@ Ext.define('Insectgame.controller.Playmain',{
             	activate:'onDepotlistActivate',
             	deactivate:'onDepotlistDeactivate'
             },
+            depotlist:{
+            	itemsingletap:'depotitem_ontap', 
+            }
             
 		},
 		routes:{
@@ -144,7 +137,7 @@ Ext.define('Insectgame.controller.Playmain',{
 		console.log('playcontrol activate event');
 		playcontrolfinished = true;
 		initUpdate(0,updateFirst,300);
-		
+		initUpdate(3,updateSencond,1000);
 	},
 	
 	showPlaymainview:function(){
@@ -168,23 +161,52 @@ Ext.define('Insectgame.controller.Playmain',{
 	},
 	onBuglistActivate:function(){
 		console.log('buglist activate');
+		currentActiveGameTabIndex = 1;
 		if(bugstore.getData().length == 0)
-			bugstore.setData(titleArray['/getinsectinfo/bugs'].infoobj);																								
+			bugstore.setData(titleArray[keyinfos.bugskey].infoobj);																								
 	},
 	onBuglistDeactivate:function(){
 		console.log('buglist deactivate');
 	},
-	onDepotlistActivate:function(){
+	onDepotlistActivate:function(newActiveItem, thisself, oldActiveItem, eOpts){
 		console.log('depotlist activate');
-		if(depotstore.getData().length == 0)
-			depotstore.setData(titleArray['/getinsectinfo/depot'].infoobj);																								
+			currentActiveGameTabIndex = 4;
+		if(depotstore.getData().length == 0){
+			//console.log('设置仓库数据');
+			//depotstore.setData(depotdataObjArray);
+		}
 	},
 	onDepotlistDeactivate:function(){
 		console.log('depotlist deactivate');
 	},
+	onDepotItemsingletap:function(thisself,index,target,record,e,eopts){
+		console.log(record);
+		debugger;
+	},
 	item_ontap:function(thisself,index,item,record,e,eOpts){
         console.log('选择操作对象');
-    }
+   },
+   depotitem_ontap:function(thisself,index,item,record,e,eOpts){
+        var selectid = record.id;
+        var configitem = getGoodsConfigItem(record.data.id);
+        if(configitem.isuse == 't'){
+        	var msgobj = useGoodsDic[configitem.id];
+        	if(msgobj.checkfunc())
+        	{
+        		Ext.Msg.alert(msgobj.title,msgobj.content,function(optional){
+        			depotstore.removeAt(index);
+        			removeDepotdata(configitem.id);
+        			var newobjid = egg2imago[configitem.id];
+        			if(newobjid != null){
+        				excuteBugsdata(newobjid,record.data.count);
+        			}
+        		});
+        	}else
+        	{
+        		Ext.Msg.alert(msgobj.title,msgobj.content+'<br\>'+msgobj.insufficient);
+        	}
+        }
+   }
 });
 
 function initUpdate(id,func,t){
@@ -199,4 +221,9 @@ function updateFirst(){
 	var labelfoodnums = Ext.get('labelfoodnums');
 	lab.setHtml(systemTime);
 	labelfoodnums.setHtml(tick);
+	console.log(systemTime);
+}
+
+function updateSencond(){
+	console.log('second:%d',systemTime);
 }

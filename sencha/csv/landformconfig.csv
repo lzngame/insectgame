@@ -1,0 +1,9 @@
+id,name,type,description,handler,passiveness,iconurl
+landform002,水,balk,不能通过和建造，但一些特殊任务需要水源,empty,empty,slice69_69.png
+landform004,石头,balk,障碍物，但可以探索，或许有发现,虫道|;虫道\;虫道/,empty,slice69_69.png
+landform003,小块空地,clearing,可以建造,兵虫巢;工虫巢;虫道|;虫道\;虫道/;菌蒲,empty,slice69_69.png
+landform006,洞穴,exit,未知的探索,探索,empty,slice69_69.png
+landform007,核辐射,special,不看靠近，但是核虫生长的必要条件,核虫巢,hurt2,slice69_69.png
+build001,兵巢,clearing,兵虫生长的地方，可以防御敌虫,升级;放弃,empty,slice69_69.png
+build002,工巢,clearing,工虫生长的地方，可以培养菌蒲，蚜虫,升级;放弃,empty,slice69_69.png
+build003,菌蒲,clearing,可食用菌生长的地方，需要工虫在附近打理,升级;放弃,empty,slice69_69.png

@@ -167,6 +167,21 @@ function drawCircle(x,y){
 	context.fill();
 }
 
+CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        //if (w < 2 * r) r = w / 2;
+        //if (h < 2 * r) r = h / 2;
+        this.beginPath();
+        this.moveTo(x+r, y);
+        this.arcTo(x+w, y, x+w, y+h, r);
+        this.arcTo(x+w, y+h, x, y+h, r);
+        this.arcTo(x, y+h, x, y, r);
+        this.arcTo(x, y, x+w, y, r);
+        // this.arcTo(x+r, y);
+        this.closePath();
+        return this;
+    }
+
+
 //flat :1 尖顶 0 平顶
 function drawHexagon(ctx,x,y,r,clr,clrborder,flat){
 			if(flat == null)
@@ -200,6 +215,51 @@ function drawHexagon(ctx,x,y,r,clr,clrborder,flat){
 			ctx.fill();
 			ctx.stroke();
 		}
+
+
+function drawHexagonRoute(ctx,x,y,r,flat){
+			if(flat == null)
+				flat = 0;
+			ctx.strokeStyle = 'red';
+			ang = 2 * (Math.PI/6)+(Math.PI/6*flat);
+			var x10 = x - r*Math.sin(ang);
+			var y10 = y + r*Math.cos(ang);
+			ctx.moveTo(x10,y10);
+			
+			ang = 8 * (Math.PI/6)+(Math.PI/6*flat);
+			x10 = x - r*Math.sin(ang);
+			y10 = y + r*Math.cos(ang);
+			ctx.lineTo(x10,y10);
+			ctx.stroke();
+		}
+
+function drawHexagonBorder(ctx,x,y,r,clrborder,flat){
+			if(flat == null)
+				flat = 0;
+			
+			ctx.strokeStyle = clrborder;
+			ctx.beginPath();
+			var x0 = x;
+			var y0 = y;
+			var ang = 0;
+			for(var i=0;i<12;i++){
+				ang = i * (Math.PI/6)+(Math.PI/6*flat);
+				x0 = x - r*Math.sin(ang);
+				y0 = y + r*Math.cos(ang);
+				if(i==0){
+					ctx.moveTo(x0,y0);
+				}		
+				else{
+					if(i%2==0)
+						ctx.lineTo(x0,y0);
+				}
+			}
+
+			ctx.closePath();
+			ctx.stroke();
+		}
+
+
 
 function drawText(ctx,x,y,fontDis,txtArray){
 			for(var i=0;i<txtArray.length;i++){

@@ -55,28 +55,38 @@ Ext.define('Insectgame.controller.Login',{
 });
 
 function checkFinished(){
+	var finished = true;
 	for(var item in titleArray){
-		if(!titleArray[item]){
+		if(!titleArray[item].finishedid){
+			console.log('not finished:%s',item);
+			finished = false;
 			break;
 		}
 	}
-	Ext.Viewport.setMasked(false);
+	if(finished){
+		console.log('可以开始了');
+		initDepotdata();
+		initBugsdata();
+		Ext.Viewport.setMasked(false);
+		
+		
+	}
 }
 
 
 function initNewUserData(){
 	Ext.Viewport.setMasked({xtype:'loadmask',message:'Insect资源加载...'});
 	for(var item in titleArray){
-		console.log(item);
 		var jsonurl = item;
 		Ext.Ajax.request({
 				url:item,
 				success:function(response){
 					var txt = response.responseText;
-					var url = response.request.options.url;
-					titleArray[url].finishedid = true;
-					titleArray[url].infoobj = JSON.parse(txt);
-					localStorage[titleArray[url].localkey] = txt;
+					var urlst = response.request.options.url;
+					titleArray[urlst].finishedid = true;
+					titleArray[urlst].infoobj = JSON.parse(txt);
+					localStorage[titleArray[urlst].localkey] = txt;
+					console.log('%s:loaded',urlst);
 					checkFinished();
 				},
 				 failure: function(response, opts) {
@@ -95,4 +105,6 @@ function initOldUserData(){
 		var txt = localStorage[localkey];
 		titleArray[item].infoobj = JSON.parse(txt);
 	}
+	initDepotdata();
+	initBugsdata();
 }

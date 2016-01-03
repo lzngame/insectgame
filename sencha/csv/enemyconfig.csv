@@ -1,0 +1,4 @@
+id,name ,type,description,power,initiative,lv,iconurl
+enemy01,初级敌虫,enemy,初级敌虫，会攻击相邻单位的其他虫类,100,t,15,slice93_93.png
+enemy02,中级敌虫,enemy,中级敌虫，会攻击相邻单位的其他虫类,200,t,20,slice93_93.png
+enemy03,甲虫,enemy,甲虫，不主动攻击虫类，力量超强,300,f,25,slice93_93.png

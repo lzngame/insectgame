@@ -65,17 +65,16 @@ function drawHexMap(){
 		}
 	}
 	
-	var mapdataInfoObj = titleArray['/getinsectinfo/mapa'].infoobj;
+	var mapdataInfoObj = titleArray[keyinfos.mapkey].infoobj;
 	for(var i=0;i<mapdataInfoObj.length;i++){
 		var item = mapdataInfoObj[i];
 		var x = parseInt(item.x);
 		var y = parseInt(item.y);
-		var landform = item.landform;
+		var configItem = getMapdataConfigItem(item.type,item.id);
 		var isopen = (parseInt(item.isopen) != 0);
 		var count = parseInt(item.count);
 		if(isopen){
-			if(landform != null){
-				var iconurl = getTileConfig(landform).iconurl+'.png';
+				var iconurl = configItem.iconurl;
 				var xpos = getHexPos(x,y)[0];
 				var ypos = getHexPos(x,y)[1];
 				var tmp = jsonObj[iconurl];
@@ -86,7 +85,6 @@ function drawHexMap(){
 				var w = arrayitem[0];
 				var h = arrayitem[1];
 				drawScaleImg(context,iconurl,xpos-w/2,ypos-h/2,1);
-			}
 		}
 	}
 	
@@ -118,7 +116,7 @@ function getFocusRound(x,y){
 				[xc1+1,  yc1-5]    
 				];
 		}
-	}else if(xc1 >=8){
+	}else if(xc1 >=7){
 		if(yc1<=5){
 			roundSix = [
 				[xc1-1,  yc1], 
@@ -201,17 +199,31 @@ function checkRound(ar,x,y){
 	return re;
 }
 
-function drawFoucsRound(round,context){
-	var clrar =['#ffccdd','#ccddff','#ededfc','#efefaa','#ccffee','#eaefea'];
-	var btntxt =['兵巢','工巢','食物','采集','摧毁','返回'];
-	for(var i=0;i<round.length;i++){
+function drawFoucsRound(xcoodr,ycoodr,handlerNames,note,context){
+	var round = getFocusRound(xcoodr,ycoodr)
+	if(handlerNames.length == 1 && handlerNames[0] == 'empty')
+		return;
+	for(var i=0;i<handlerNames.length;i++){
 		var xpos =  getHexPos(round[i][0],round[i][1])[0];
 		var ypos =  getHexPos(round[i][0],round[i][1])[1];
 
 		drawHexagon(context,xpos,ypos,r1,clrar[i],'white',1);
 		context.fillStyle ='black';
-		context.fillText(btntxt[i],xpos-10,ypos);
+		context.fillText(handlerNames[i],xpos-10,ypos);
 	}
+	
+	var x = tabpanelW/2 - titleTooltipWidth/2;
+	var y = tabpanelH - titleTooltipHeight -5;
+	if(ycoodr > 5)
+		y = 5;
+	context.roundRect(x-2,y-2,titleTooltipWidth+4,titleTooltipHeight+4,5).stroke();
+	context.roundRect(x,y,titleTooltipWidth,titleTooltipHeight,5).fill();
+	context.fillStyle = 'white';
+	var notearray = note.split(';');
+	for(var i in notearray){
+		context.fillText(notearray[i],x+15,y+25+(i*20));
+	}
+	
 }
 
 var panelc3 = Ext.create('Ext.Panel',{
@@ -224,7 +236,6 @@ var panelc3 = Ext.create('Ext.Panel',{
 	activePanel:0,
 	listeners:{
 		activate:function(){
-			//debugger;
 			console.log('current panel:',this.config.activePanel);
 			if(this.config.activePanel == 0){
 				this.config.status = -1;
@@ -233,10 +244,14 @@ var panelc3 = Ext.create('Ext.Panel',{
 				drawLargemap();
 				this.element.removeListener('tap',tapMapTwo);
 				this.element.on('tap',tapMapOne);
+				console.log('当前活动场景---整体地图');
+				currentActiveGameTabIndex = 2;
 			}else if(this.config.activePanel == 1){
 				drawHexMap();
 				this.element.removeListener('tap',tapMapOne);
 				this.element.on('tap',tapMapTwo);
+				console.log('当前活动场景---探索地图');
+				currentActiveGameTabIndex = 3;
 			}
 			
 		},
@@ -252,8 +267,6 @@ var panelc3 = Ext.create('Ext.Panel',{
 	}
 });
 
-
-
 function tapMapOne(thisself,e,t,eopt){
 	console.log('tapmapone');
 	var canvas = $('canvasid2');
@@ -263,12 +276,14 @@ function tapMapOne(thisself,e,t,eopt){
 	var dis = getDis(tapx,tapy,searchBtnX,searchBtnY);
 	console.log('Dis:%f',dis);
 	
+	
 	if(dis < 30){
 		panelc3.element.removeListener('tap',tapMapOne);
 		panelc3.element.on('tap',tapMapTwo);
 		context.clearRect(0,0,tabpanelW,tabpanelH);
 		drawHexMap();
 		panelc3.config.activePanel = 1;
+		currentActiveGameTabIndex = 3;
 	}
 }
 
@@ -277,28 +292,74 @@ function tapMapTwo(thisself,e,t,eopt){
 	var canvas = $('canvasid2');
 	var context = canvas.getContext("2d");
 	context.clearRect(0,0,tabpanelW,tabpanelH);
-	drawHexMap();
-	
 	var tapArray = getTapFocus(thisself.pageX,thisself.pageY);
 	var xcoodr = tapArray[0];
 	var ycoodr = tapArray[1];
+	console.log('点击(%d,%d)',xcoodr,ycoodr);
 	
+	drawHexMap();
 	if(panelc3.config.status == 0){
 		var roundtmp = getFocusRound(panelc3.config.currentActive[0],panelc3.config.currentActive[1]);
 		var re = checkRound(roundtmp,xcoodr,ycoodr);
-		if(re != -1){
-			console.log('执行事件：%d',re);
-			if(re == 5){
+		var item = getMapdataItem(panelc3.config.currentActive[0],panelc3.config.currentActive[1]);
+		var configItem = getMapdataConfigItem(item.type,item.id);
+		var handlers = configItem.handler;
+		var hary = handlers.split(';');
+		var noteobj ={
+			tooltiptxt:''
+		};
+		if(re != -1 && re < hary.length){
+			console.log('执行事件：%d :%s 数量:%d',re,hary[re],item.count*100);
+			if(re == 4){
 				panelc3.element.removeListener('tap',tapMapTwo);
 				panelc3.element.on('tap',tapMapOne);
 				context.clearRect(0,0,tabpanelW,tabpanelH);
 				drawLargemap();
 				panelc3.config.activePanel = 0;
+				currentActiveGameTabIndex = 2;
 			}else{
 				setMapdata(panelc3.config.currentActive[0],panelc3.config.currentActive[1]);
-				context.clearRect(0,0,tabpanelW,tabpanelH);
+				var id = item.id;
+				if(item.type == 'pickup'){
+					var num = parseInt(item.supply);
+					noteobj.tooltiptxt = '采集'+item.note+'资源'+ num.toString();
+					if(parseInt(item.count) == -1){
+						console.log('不枯竭的资源');
+					}else{
+						item.count = parseInt(item.count) - num;
+						if(parseInt(item.count) <= 0){
+							item.count = 0;
+							item.type = 'balk';
+							item.id = 'landform003';
+							item.note = '空地';
+						}
+					}
+					excuteDepotdata(id,num);
+				}
+				if(item.type == 'balk'){
+					if(item.id == 'landform003'){
+						if(re == 0){
+							item.id = 'build001';
+							item.note = '兵巢';
+							noteobj.tooltiptxt = '建造兵巢成功';
+						}else if(re == 1){
+							item.id = 'build002';
+							item.note ='工巢';
+							noteobj.tooltiptxt  = '建造工巢成功';
+						}else if(re == 5){
+							item.id = 'build003';
+							item.note ='菌蒲';
+							noteobj.tooltiptxt  = '建造菌蒲成功';
+						}
+					}
+					else if(item.id =='build001'){
+						var obj = buildDic[item.id];
+						obj[re](item,noteobj);
+					}
+				}
+				
+				Ext.toast(noteobj.tooltiptxt,1000);
 				saveData('mapdata');
-				drawHexMap();
 			}
 			panelc3.config.status = -1;
 			panelc3.config.currentActive[0]=-1;
@@ -312,8 +373,6 @@ function tapMapTwo(thisself,e,t,eopt){
 			panelc3.config.status = -1;
 			panelc3.config.currentActive[0]=-1;
 			panelc3.config.currentActive[1]=-1;
-			context.clearRect(0,0,tabpanelW,tabpanelH);
-			drawHexMap();
 	}else{
 			panelc3.config.currentActive =[xcoodr,ycoodr];
 			console.log('new focus:%d:%d',xcoodr,ycoodr);
@@ -322,8 +381,23 @@ function tapMapTwo(thisself,e,t,eopt){
 			var ypos = 2*r2*ycoodr;
 			if(xcoodr%2==0)
 				ypos =2*r2*ycoodr-r2;
-			drawHexagon(context,xpos,ypos,r1/2,'blue','yellow',1);
-			drawFoucsRound(getFocusRound(xcoodr,ycoodr),context);
+			
+			var obj1 = getFocusRound(xcoodr,ycoodr);
+			var item = getMapdataItem(xcoodr,ycoodr);
+			var configItem = getMapdataConfigItem(item.type,item.id);
+			var handlers = configItem.handler;
+			var note = configItem.description;
+			var name = configItem.name;
+			var hary = handlers.split(';');
+			
+			
+			setMapdata(panelc3.config.currentActive[0],panelc3.config.currentActive[1]);
+			saveData('mapdata');
+			
+			context.clearRect(0,0,tabpanelW,tabpanelH);
+			drawHexMap();
+			drawHexagonBorder(context,xpos,ypos,r1-3,'yellow',1);
+			drawFoucsRound(xcoodr,ycoodr,hary,(name+":"+note),context);
 		}
 }
 
@@ -367,13 +441,19 @@ Ext.define('User',{
 				fields:['id','name','lv','power','class','classnote','count','description']
 			}
 		});
+Ext.define('Depot',{
+	extend:'Ext.data.Model',
+	config:{
+		fields:['id','name','lv','count','unit','description']
+	}
+});
 		
 var bugTemplate=new Ext.XTemplate( 
 			'<tpl>',
 			  '<div class="totaldiv">',
 				'<div class="inlinediv">',
 				    '<div class="title_011">{name}</div>',
-				    '<div class="title_044">LV:{lv}</div>',
+				    '<div class="title_044">Lv:{lv}</div>',
 				'</div>',
 				'<div class="inlinediv">',
 				    '<div class="title_022">类别:{classnote}</div>',
@@ -389,14 +469,14 @@ var bugstore = Ext.create( 'Ext.data.Store',{
 			model:'User',
 			autoLoad:true,
 			remoteSort:false,
-			data:titleArray['/getinsectinfo/bugs'].infoobj,
+			data:null//titleArray[keyinfos.bugskey].infoobj,
 		});
 
 var depotstore = Ext.create( 'Ext.data.Store',{
-			model:'User',
+			model:'Depot',
 			autoLoad:true,
 			remoteSort:false,
-			data:titleArray['/getinsectinfo/depot'].infoobj,
+			data:null//titleArray[keyinfos.depotkey].infoobj,
 		});
 
 var depotTemplate=new Ext.XTemplate( 
@@ -420,18 +500,18 @@ var dataviewuser = Ext.create('Ext.DataView',{
 			flex:4,
 			store:bugstore,
 			baseCls:'user',
-			itemid:'ttttttt',
-			itemTpl:depotTemplate,
+			itemid:'bugsitemid',
+			itemTpl:bugTemplate,
 			height:'100%',
 		});
 
 var dataviewdepot = Ext.create('Ext.DataView',{
-			id:'datatviewdepotid',
+			id:'depotlistid',
 			store:depotstore,
-			baseCls:'user',
-			itemid:'ttttttt2i',
+			baseCls:'depot',
+			itemid:'depotitemid',
 			itemTpl:depotTemplate,
-			height:'100%',
+			height:'100%'
 		});
 		
 //根据选择条件进行排序
@@ -573,26 +653,19 @@ Ext.define('Insectgame.view.Playmain',{
 											iconAlign:'top',
 											style:getBtnCls(),
 											handler:function(thisself,e,eopts){
-												//var index = Ext.getCmp('datatviewuserid').config.index;
-												//debugger;
-												//var item = Ext.getCmp('datatviewuserid').config.selectItem;
-												//var id = item.getId();
-												
 												var sobj = Ext.getCmp('datatviewuserid').getSelection()[0];
 												if(sobj == null){
 													Ext.Msg.alert('请先选择虫族');
 													return;
 												}
-												var idd = sobj.id;
+												
 												bugstore.setRemoteSort(true);
-												//var boj = bugstore.getAt(index);
-												var boj = bugstore.getById(idd);
-												console.log(boj);
 												var num = Math.floor(Math.random()*100);
-												boj.set('count',num);
+												sobj.set('count',num);
+												//    
 												var records = bugstore.getRange();
 												var jsonSt = Ext.encode(Ext.pluck(records,'data'));
-												localStorage[titleArray['/getinsectinfo/bugs'].localkey] = jsonSt;
+												localStorage[titleArray[keyinfos.bugskey].localkey] = jsonSt;
 											}
 										},
 										{
@@ -601,6 +674,10 @@ Ext.define('Insectgame.view.Playmain',{
 											style:getBtnCls(),
 											handler:function(thisself,e,eopts){
 												console.log('进化基因');
+												    
+												var tmp = depotstore;
+												var obj = depotstore.getRange();
+												
 											}
 										},
 										{

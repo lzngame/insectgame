@@ -19,13 +19,9 @@ var localupdate = {
 	update:function(){
 		this.sumtick += tick;
 		if(this.sumtick > 1000){
-			//console.log(this.sumtick);
 			this.sumtick = 0;
 		}
 	}
-	
-	
-		
 }
 
 function animate(time){

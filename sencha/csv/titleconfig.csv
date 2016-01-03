@@ -1,0 +1,16 @@
+id,name,iconurl,isbuild,type,note,description,handler,passiveness
+t1000,key,f32_32,f,0,锁,需要钥匙才能打开，未知,开启;返回,empty
+t1001,food,f34_34,f,0,普通虫食,中级以下虫类食用,采集;返回,empty
+t1002,aphid,f35_35,f,0,蚜虫,可供牧养的昆虫，为它提供保护，蚜虫则负责产出蜜露一样的高级食物,采集;返回,empty
+t1003,water,slice10_10,f,0,水,不能通过和建造，但一些特殊任务需要水源,empty,empty
+t1004,stone,slice28_28,f,0,石头,障碍物，但可以探索，或许有发现,虫道|;虫道\;虫道/,empty
+t1005,clearing,slice29_29,t,0,小块空地,可以建造,兵虫巢;工虫巢;虫道|;虫道\;虫道/;菌蒲,empty
+t1006,tree,slice63_63,f,0,树,可以提供树叶，树叶可以种植菌蒲，不能建造,采集;返回,empty
+t1007,cave ,slice93_93,f,0,洞穴,未知的探索,探索,empty
+t1008,egg,slice53_53,f,0,虫卵,可以孵化特殊虫类,采集;返回,empty
+t1009,mushroom,slice53_53,f,0,食用菌,可以种植，需要树叶,采集;返回,empty
+t1010,antibiotic,slice53_53,f,0,抗生素菌类,可以种植，随身携带，防止虫群疾病暴发,采集;返回,empty
+t1011,zymad,slice53_53,f,0,致病菌,对虫群是极大的威胁,empty,hurt1
+t1012,nuclear,slice53_53,t,0,核辐射,不看靠近，但是核虫生长的必要条件,核虫巢,hurt2
+t1013,gene ,slice53_53,f,0,基因片段,可以升级对应虫类,采集;返回,empty
+t1014,enemy,slice53_53,f,0,敌虫,需要消灭的对象,empty,hurt3
