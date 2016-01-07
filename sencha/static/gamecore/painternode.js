@@ -151,6 +151,12 @@ function drawJsonImg2(name,x,y,init,border,boxoffsetX,boxoffsetY){
 				drawPoint(x,y,initW,initH);
 		};
 		
+function drawImgCenter(context,name,x,y){
+	var imgw = jsonObj[name][4][0];
+	var imgh = jsonObj[name][4][1];
+	drawScaleImg(context,name,x-imgw/2,y-imgh/2,1);
+}
+		
 function drawPoint(x,y,w,h){
 			context.fillStyle = "red";
 			context.fillRect(x,y,2,2);

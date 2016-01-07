@@ -1,4 +1,4 @@
-# coding:utf-8
+ # coding:utf-8
 import json
 import os.path
 import tornado.httpserver
@@ -62,6 +62,12 @@ def getCsvJsonst(filename):
 class GetInsectInfo(tornado.web.RequestHandler):
 	def get(self,story_id):
                 self.write(getCsvJsonst('csv/'+infodic[story_id]))
+
+class GetMapInfo(tornado.web.RequestHandler):
+        def get(self,mapid):
+                filename = ('%s%s%s' % ('csv/mapdata/mapdata',mapid,'.csv'))
+                print filename
+                self.write(getCsvJsonst(filename))
                  
 
 class GetBugsInfo(tornado.web.RequestHandler):
@@ -94,6 +100,7 @@ if __name__ == '__main__':
 			(r'/gethomedata',GetHomedata),
 			(r'/getbugsinfo',GetBugsInfo),
                         (r'/getinsectinfo/([a-z]+)',GetInsectInfo),
+                        (r'/getcurrentmap/([1-9]+)',GetMapInfo),
 			],
 			template_path = os.path.join(os.path.dirname(__file__),"templates"),
 			static_path = os.path.join(os.path.dirname(__file__),"static"),

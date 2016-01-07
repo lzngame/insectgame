@@ -27,6 +27,21 @@ Ext.define('Insectgame.controller.Login',{
 	},
 	onloginActive:function(){
 		console.log('login view activate');
+		loadLogingLocalData();
+	},
+	btn_login_ontap:function(){
+		Ext.Viewport.animateActiveItem(this.getMainview(),{type:'slide',direction:'left'});
+		this.redirectTo('playmain');
+	},
+	btn_clear_ontap:function(){
+		localStorage.clear();
+	},
+	showLogview:function(){
+		Ext.Viewport.setActiveItem(this.getLoginview());
+	},
+});
+
+function loadLogingLocalData(){
 		var d = new Date();
 		var nowst = d.toLocaleString();
 		var name = localStorage['username'];
@@ -40,19 +55,7 @@ Ext.define('Insectgame.controller.Login',{
 			localStorage['username'] = username;
 			initNewUserData();
 		}
-	},
-	btn_login_ontap:function(){
-		Ext.Viewport.animateActiveItem(this.getMainview(),{type:'slide',direction:'left'});
-		this.redirectTo('playmain');
-	},
-	btn_clear_ontap:function(){
-		localStorage.clear();
-	},
-	showLogview:function(){
-		Ext.Viewport.setActiveItem(this.getLoginview());
-	},
-	
-});
+}
 
 function checkFinished(){
 	var finished = true;
@@ -63,13 +66,11 @@ function checkFinished(){
 			break;
 		}
 	}
-	if(finished){
+	if(finished && mapArray[keyinfos.mapkey].finishedid){
 		console.log('可以开始了');
 		initDepotdata();
 		initBugsdata();
 		Ext.Viewport.setMasked(false);
-		
-		
 	}
 }
 
@@ -87,6 +88,13 @@ function initNewUserData(){
 					titleArray[urlst].infoobj = JSON.parse(txt);
 					localStorage[titleArray[urlst].localkey] = txt;
 					console.log('%s:loaded',urlst);
+					if(titleArray[keyinfos.homeinfokey].finishedid && ismapdataReady){
+						console.log('开始载入地图数据');
+						ismapdataReady = false;
+						var urltmp = '/getcurrentmap/'+ titleArray[keyinfos.homeinfokey].infoobj['hatch_speed'];
+						loadMapdata(urltmp);
+						console.log(urltmp);
+					}
 					checkFinished();
 				},
 				 failure: function(response, opts) {
@@ -97,6 +105,43 @@ function initNewUserData(){
 	}
 }
 
+function loadMapdata(urltmp){
+	Ext.Ajax.request({
+			url:urltmp,
+			success:function(response){
+						console.log('载入地图数据成功');
+						mapArray[keyinfos.mapkey].infoobj = JSON.parse(response.responseText);
+						localStorage[mapArray[keyinfos.mapkey].localkey] = response.responseText;
+						mapArray[keyinfos.mapkey].finishedid = true;
+						checkFinished();
+					},
+			failure: function(response, opts) {
+        				console.log('server-side failure with status /getinsectinfo/bugs' + response.status);
+        				Ext.Msg.alert('服务器数据错误');
+    				}
+		});
+}
+
+function loadNewMapdata(urltmp,mapid){
+	Ext.Ajax.request({
+			url:urltmp,
+			success:function(response){
+						console.log('载入下一站地图数据成功');
+						mapArray[keyinfos.mapkey].infoobj = JSON.parse(response.responseText);
+						localStorage[mapArray[keyinfos.mapkey].localkey] = response.responseText;
+						mapArray[keyinfos.mapkey].finishedid = true;
+						Ext.Viewport.setMasked(false);
+						titleArray[keyinfos.homeinfokey].infoobj['hatch_speed'] = mapid;
+						saveData('homedata');
+						clearCanvas();
+						drawHexMap();
+					},
+			failure: function(response, opts) {
+        				console.log('server-side failure with status /getinsectinfo/bugs' + response.status);
+        				Ext.Msg.alert('服务器数据错误');
+    				}
+		});
+}
 
 function initOldUserData(){
 	for(var item in titleArray){
@@ -105,6 +150,8 @@ function initOldUserData(){
 		var txt = localStorage[localkey];
 		titleArray[item].infoobj = JSON.parse(txt);
 	}
+	var maptxt = localStorage[mapArray[keyinfos.mapkey].localkey];
+	mapArray[keyinfos.mapkey].infoobj = JSON.parse(maptxt);
 	initDepotdata();
 	initBugsdata();
 }

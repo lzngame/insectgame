@@ -65,7 +65,7 @@ function drawHexMap(){
 		}
 	}
 	
-	var mapdataInfoObj = titleArray[keyinfos.mapkey].infoobj;
+	var mapdataInfoObj = mapArray[keyinfos.mapkey].infoobj;
 	for(var i=0;i<mapdataInfoObj.length;i++){
 		var item = mapdataInfoObj[i];
 		var x = parseInt(item.x);
@@ -77,14 +77,7 @@ function drawHexMap(){
 				var iconurl = configItem.iconurl;
 				var xpos = getHexPos(x,y)[0];
 				var ypos = getHexPos(x,y)[1];
-				var tmp = jsonObj[iconurl];
-				if(tmp == null){
-					console.log('iconurl:%s  is error!',iconurl);
-				}
-				var arrayitem = tmp[4];
-				var w = arrayitem[0];
-				var h = arrayitem[1];
-				drawScaleImg(context,iconurl,xpos-w/2,ypos-h/2,1);
+				drawImgCenter(context,iconurl,xpos,ypos);
 		}
 	}
 	
@@ -226,6 +219,12 @@ function drawFoucsRound(xcoodr,ycoodr,handlerNames,note,context){
 	
 }
 
+function clearCanvas(){
+	var canvas = $('canvasid2');
+	var context = canvas.getContext("2d");
+	context.clearRect(0,0,tabpanelW,tabpanelH);
+}
+
 var panelc3 = Ext.create('Ext.Panel',{
 	id:'mappanelid',
 	html:'<canvas id="canvasid2" style="margin:0px;padding:0px;"></canvas>',
@@ -291,13 +290,13 @@ function tapMapTwo(thisself,e,t,eopt){
 	console.log('tapmaptwo');
 	var canvas = $('canvasid2');
 	var context = canvas.getContext("2d");
-	context.clearRect(0,0,tabpanelW,tabpanelH);
+	
 	var tapArray = getTapFocus(thisself.pageX,thisself.pageY);
 	var xcoodr = tapArray[0];
 	var ycoodr = tapArray[1];
 	console.log('点击(%d,%d)',xcoodr,ycoodr);
 	
-	drawHexMap();
+	
 	if(panelc3.config.status == 0){
 		var roundtmp = getFocusRound(panelc3.config.currentActive[0],panelc3.config.currentActive[1]);
 		var re = checkRound(roundtmp,xcoodr,ycoodr);
@@ -310,17 +309,10 @@ function tapMapTwo(thisself,e,t,eopt){
 		};
 		if(re != -1 && re < hary.length){
 			console.log('执行事件：%d :%s 数量:%d',re,hary[re],item.count*100);
-			if(re == 4){
-				panelc3.element.removeListener('tap',tapMapTwo);
-				panelc3.element.on('tap',tapMapOne);
-				context.clearRect(0,0,tabpanelW,tabpanelH);
-				drawLargemap();
-				panelc3.config.activePanel = 0;
-				currentActiveGameTabIndex = 2;
-			}else{
-				setMapdata(panelc3.config.currentActive[0],panelc3.config.currentActive[1]);
-				var id = item.id;
-				if(item.type == 'pickup'){
+			
+			setMapdata(panelc3.config.currentActive[0],panelc3.config.currentActive[1]);
+			var id = item.id;
+			if(item.type == 'pickup'){
 					var num = parseInt(item.supply);
 					noteobj.tooltiptxt = '采集'+item.note+'资源'+ num.toString();
 					if(parseInt(item.count) == -1){
@@ -335,8 +327,8 @@ function tapMapTwo(thisself,e,t,eopt){
 						}
 					}
 					excuteDepotdata(id,num);
-				}
-				if(item.type == 'balk'){
+			}
+			else if(item.type == 'balk'){
 					if(item.id == 'landform003'){
 						if(re == 0){
 							item.id = 'build001';
@@ -352,18 +344,45 @@ function tapMapTwo(thisself,e,t,eopt){
 							noteobj.tooltiptxt  = '建造菌蒲成功';
 						}
 					}
-					else if(item.id =='build001'){
+					else {
 						var obj = buildDic[item.id];
 						obj[re](item,noteobj);
 					}
-				}
+			}else if(item.type =='exit'){
+					panelc3.element.removeListener('tap',tapMapTwo);
+					panelc3.element.on('tap',tapMapOne);
+					context.clearRect(0,0,tabpanelW,tabpanelH);
+					drawLargemap();
+					panelc3.config.activePanel = 0;
+					currentActiveGameTabIndex = 2;
+					
+					panelc3.config.status = -1;
+					panelc3.config.currentActive[0]=-1;
+					panelc3.config.currentActive[1]=-1;
+					return;
+			}else if(item.type == 'next'){
+				Ext.Viewport.setMasked({xtype:'loadmask',message:'资源加载...'});
+				var homeInfoObj = titleArray[keyinfos.homeinfokey].infoobj;
+				var nextmap = parseInt(homeInfoObj['hatch_speed'])+1;
+				var urltmp = '/getcurrentmap/'+ nextmap.toString();
+				mapArray[keyinfos.mapkey].finishedid = false;
+				loadNewMapdata(urltmp,nextmap);
 				
-				Ext.toast(noteobj.tooltiptxt,1000);
-				saveData('mapdata');
+				panelc3.config.status = -1;
+				panelc3.config.currentActive[0]=-1;
+				panelc3.config.currentActive[1]=-1;
+				return;
 			}
+				
+			Ext.toast(noteobj.tooltiptxt,1000);
+			saveData('mapdata');
+			
 			panelc3.config.status = -1;
 			panelc3.config.currentActive[0]=-1;
 			panelc3.config.currentActive[1]=-1;
+			
+			context.clearRect(0,0,tabpanelW,tabpanelH);
+			drawHexMap();
 			return;
 		}
 	}
@@ -373,6 +392,8 @@ function tapMapTwo(thisself,e,t,eopt){
 			panelc3.config.status = -1;
 			panelc3.config.currentActive[0]=-1;
 			panelc3.config.currentActive[1]=-1;
+			context.clearRect(0,0,tabpanelW,tabpanelH);
+			drawHexMap();
 	}else{
 			panelc3.config.currentActive =[xcoodr,ycoodr];
 			console.log('new focus:%d:%d',xcoodr,ycoodr);

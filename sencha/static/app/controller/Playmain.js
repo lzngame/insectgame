@@ -2,23 +2,38 @@ var tabpanelW =0;
 var tabpanelH = 0;
 
 var lab;
-
+var labelfoodnums;
 var playcontrolfinished = false;
 
 function drawHomeInfoTxt(context){
 	context.font = '16px Palatino';
 	context.fillStyle = "black";
-	var homeInfoObj = titleArray['/gethomedata'].infoobj;
-	context.fillText(homeInfoObj['home_title'],235,36);
-	context.fillText(homeInfoObj['home_lv'],50,140);
-	context.fillText(homeInfoObj['insect_popularity'],170,160);
-	context.fillText(homeInfoObj['insect_coid'],235,226);
-	context.fillText(homeInfoObj['insect_power'],235,286);
-	context.fillText(homeInfoObj['hatch_speed'],235,336);
+	var homeInfoObj = titleArray[keyinfos.homeinfokey].infoobj;
+	
+	var x =  initxPos+2*rHex+30;
+	var y =  inityPos+rHex-5;
+	var rsin = rHex*Math.sin(Math.PI/3) + 3;
+	
+	context.fillText(homeInfoObj['home_title'],tabpanelW - 100,36);
+	
+	context.fillText(homeInfoObj['home_lv'],x,y+1*rsin);
+	context.fillText(homeInfoObj['insect_popularity'],x,y+2*rsin);
+	context.fillText(homeInfoObj['insect_coid'],x,y+3*rsin);
+	context.fillText(homeInfoObj['insect_power'],x,y+4*rsin);
+	context.fillText(homeInfoObj['hatch_speed'],x,y+5*rsin);
 	
 	lab = Ext.fly('labelnums');
-	lab.setHtml(homeInfoObj['home_title']);
+	lab.setLeft(x);
+	lab.setTop(y-15);
+	
+	labelfoodnums = Ext.getCmp('labelfoodnums');
+	labelfoodnums.setLeft(x);
+	labelfoodnums.setTop(y+6*rsin-15);
 }
+
+var initxPos = 0;
+var inityPos = 0;
+var rHex = 0;
 
 function createCanvas(){
 			var canvas = document.getElementById('canvasid');
@@ -27,9 +42,9 @@ function createCanvas(){
 			context.fillStyle = "#5C5959";//mainview_Uiconfig.fontclr;
 			var clr = '#B5D981';//mainview_Uiconfig.hexagonfillclr;//'
 			var clrborder = "#E7FC34";
-			var initxPos = 10;
-			var inityPos =  (tabpanelH - 429)/10.0;
-			var rHex = tabpanelH/10;
+			initxPos = 10;
+			inityPos =  (tabpanelH - 429)/10.0;
+			rHex = tabpanelH/10;
 			console.log('六边形半径：',rHex);
 			var x =  initxPos+rHex;
 			var y =  inityPos+rHex;
@@ -38,7 +53,11 @@ function createCanvas(){
 			var rsin = rHex*Math.sin(Math.PI/3) + 3;
 			for(var i=0;i<4;i++){
 				drawHexagon(context,x,y+2*i*rsin,rHex,clr,clrborder,1);
-				context.fillRect(x+rHex,y+2*i*rsin,100,1);
+			}
+			drawImgCenter(context,'slice79_79.png',x,y);
+			for(var i=0;i<7;i++){
+				drawImgCenter(context,titles[i]+'.png',x,y+i*rsin);
+				context.fillRect(x+rHex,y+i*rsin,100,1);
 			}
 			context.font = '14px Palatino';
 			context.fillStyle = "#5C5959";
@@ -58,6 +77,11 @@ function createCanvas(){
 			var imgsave = Ext.getCmp('save');
 			imgsave.setTop(y+160);
 			imgsave.setLeft(tabpanelW-imgsave.getWidth()-25);
+			
+			
+			
+			
+			
 			
 			drawHomeInfoTxt(context);
 		}
@@ -103,7 +127,6 @@ Ext.define('Insectgame.controller.Playmain',{
 			playmainview:{
 				activate:'onactivate'
 			},
-			
 			uplv:{
                 tap:'uplv_onclick',
                 activate:'imbbtn_act',
@@ -126,26 +149,34 @@ Ext.define('Insectgame.controller.Playmain',{
             depotlist:{
             	itemsingletap:'depotitem_ontap', 
             }
-            
 		},
 		routes:{
 			'playmain':'showPlaymainview'
 		},
 	},
-	
 	onactivate:function(){
 		console.log('playcontrol activate event');
-		playcontrolfinished = true;
-		initUpdate(0,updateFirst,300);
-		initUpdate(3,updateSencond,1000);
+		
+		if(titleArray[keyinfos.homeinfokey].infoobj == null){
+			//console.log(this);
+			//gotoLogin(this);
+			loadLogingLocalData();
+			playcontrolfinished = true;
+			initUpdate(0,updateFirst,300);
+			initUpdate(3,updateSencond,1000);
+		}else{
+			playcontrolfinished = true;
+			initUpdate(0,updateFirst,300);
+			initUpdate(3,updateSencond,1000);
+		}
 	},
 	
 	showPlaymainview:function(){
 		Ext.Viewport.setActiveItem(this.getPlaymainview());
 	},
 	uplv_onclick:function(){
-		Ext.Viewport.animateActiveItem(this.getLoginview(),{type:'slide',direction:'right'});
-		this.redirectTo('login');
+		console.log(this);
+		gotoLogin(this);
 	},
 	onHomepanelactivate:function(){
 		console.log('home panel onHomepanel activateevent on control');
@@ -209,6 +240,11 @@ Ext.define('Insectgame.controller.Playmain',{
    }
 });
 
+function gotoLogin(thisself){
+	Ext.Viewport.animateActiveItem(thisself.getLoginview(),{type:'slide',direction:'right'});
+	thisself.redirectTo('login');
+}
+
 function initUpdate(id,func,t){
 	activeUpdatePool[id] = func;
 	if(t==null)
@@ -221,9 +257,9 @@ function updateFirst(){
 	var labelfoodnums = Ext.get('labelfoodnums');
 	lab.setHtml(systemTime);
 	labelfoodnums.setHtml(tick);
-	console.log(systemTime);
+	//console.log(systemTime);
 }
 
 function updateSencond(){
-	console.log('second:%d',systemTime);
+	//console.log('second:%d',systemTime);
 }

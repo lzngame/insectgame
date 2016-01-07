@@ -1,7 +1,7 @@
-﻿fieldname,value,explain
+fieldname,value,explain
 home_lv,15,ww
 larva_quantity,12000,ww
-hatch_speed,100,ww
+hatch_speed,1,ww
 home_title,迅猛虫王,ww
 insect_food,34000,ww
 insect_coid,49870,ww
